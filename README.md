@@ -1,10 +1,10 @@
-# dashdb
+# dashDB
 
-FIXME: description
+A hobby database system written in Clojure.
 
-## Installation
+## Source
 
-Download from http://example.com/FIXME.
+Look at and downloat the source at https://github.com/danjrauch/dashDB
 
 ## Usage
 
@@ -14,7 +14,7 @@ FIXME: explanation
 
 ## Options
 
-FIXME: listing of options this app accepts.
+...
 
 ## Examples
 
@@ -30,7 +30,7 @@ FIXME: listing of options this app accepts.
 
 ## License
 
-Copyright © 2018 FIXME
+Copyright © 2018 Dan Rauch
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.

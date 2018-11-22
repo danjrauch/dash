@@ -1,7 +1,12 @@
 (ns dashdb.core
+  (:require [clojure.java.io :as io])
+  (:require [dashdb.file :as f])
   (:gen-class))
 
 (defn -main
-  "I don't do a whole lot ... yet."
+  "Control HQ"
   [& args]
-  (println "Hello, World!"))
+  ; (println (type "hey"))
+  (def file (f/createFile "resources/tbla" "a"))
+  (f/transfer_content file 848484)
+  )
