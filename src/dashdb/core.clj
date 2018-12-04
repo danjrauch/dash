@@ -1,5 +1,4 @@
 (ns dashdb.core
-  (:require [clojure.java.io :as io])
   (:require [dashdb.file :as f])
   (:gen-class))
 
@@ -8,5 +7,12 @@
   [& args]
   ; (println (type "hey"))
   (def file (f/createFile "resources/tbla" "a"))
-  (f/transfer_content file 848484)
+  (loop [x 100]
+    (when (> x 1)
+      (f/transfer_content file (rand-int 100))
+      (f/writeFile file "\n")
+      (recur (- x 1))))
+  (f/read_nth_block file 66)
   )
+
+(-main)
