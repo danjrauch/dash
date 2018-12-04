@@ -5,14 +5,13 @@
 (defn -main
   "Control HQ"
   [& args]
-  ; (println (type "hey"))
-  (def file (f/createFile "resources/tbla" "a"))
+  (def file {:name "resources/t1" :type "inode"})
   (loop [x 100]
     (when (> x 1)
-      (f/transfer_content file (rand-int 100))
-      (f/writeFile file "\n")
+      (f/write-file (merge file {:content (rand-int 100)}))
+      (f/write-file (merge file {:content "\n"}))
       (recur (- x 1))))
-  (f/read_nth_block file 66)
+  (f/read-nth-block (merge file {:number 7}))
   )
 
 (-main)

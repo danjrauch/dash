@@ -1,5 +1,5 @@
 (defproject dashdb "0.1.0-SNAPSHOT"
-  :description "A hobby database system written in Clojure."
+  :description "lightweight graph-based DBMS"
   :url "https://github.com/danjrauch/dashDB"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
