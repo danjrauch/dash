@@ -1,5 +1,5 @@
 ;;;; File read/write system for graph directory files.
-;;;; Using a strategy called TAIN, or transactions as inodes.
+;;;; Using transactions as inodes.
 
 (ns dashdb.persistence.io
   (:require [clojure.string :as str]))
@@ -11,8 +11,6 @@
   (write-to-file [this])
   (append-content [this contents])
   (concat-append [this args]))
-
-;(assoc file :contents (vec ary))
 
 (defn create-file
   "Create a new File"
@@ -31,11 +29,10 @@
                 is (java.io.FileInputStream. f)]
             (.read is ary)
             (.close is)
-            (.put ^java.util.HashMap file :contents (java.util.ArrayList. (vec ary)))
-            )))
+            (.put ^java.util.HashMap file :contents (java.util.ArrayList. (vec ary))))))
       (append-content [_ contents]
         (locking file
-         (.addAll (.get ^java.util.HashMap file :contents) (java.util.ArrayList. (vec (map byte contents))))))
+          (.addAll (.get ^java.util.HashMap file :contents) (java.util.ArrayList. (vec (map byte contents))))))
       (concat-append [this args]
         (locking file
           (append-content this (str/join args))))
@@ -44,8 +41,7 @@
           (let [f (java.io.File. name)
                 is (java.io.FileOutputStream. f)]
             (.write is (byte-array (.get ^java.util.HashMap file :contents)))
-            (.close is))))
-      )))
+            (.close is)))))))
 
 (defn bytes->num
   [data]

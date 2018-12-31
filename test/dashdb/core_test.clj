@@ -1,18 +1,20 @@
 (ns dashdb.core-test
   (:require [clojure.test :refer :all]
-            [clojure.java [io :as io]]
-            [dashdb.fs :refer :all :as fs]))
+            [clojure.java.io :as javaio]
+            [dashdb.persistence.io :refer :all :as io]
+            [test.util :refer :all]))
 
 (deftest write-to-file-test
-  (clojure.java.io/file "test_resources/node.dir")
-  (fs/write-to-file (fs/append-content {:name "test_resources/node.dir"} "123"))
-  (def file (fs/read-from-file {:name "test_resources/node.dir"}))
-  (is (= (:contents file) [49 50 51]))
-  (io/delete-file "test_resources/node.dir")
-  )
+  (with-files [["/node"]]
+    (def file (io/create-file (str tmp-dir "/node")))
+    (io/read-from-file file)
+    (io/append-content file "aaa")
+    (io/write-to-file file)
+    (io/read-from-file file)
+    (is (= (io/get-contents file) [97 97 97]))))
 
 (deftest read-from-file-test
-  (clojure.java.io/file "test_resources/node.dir")
-  (spit "test_resources/node.dir" "12345")
-  (is (= (:contents (fs/read-from-file {:name "test_resources/node.dir"})) [49 50 51 52 53]))
-  (io/delete-file "test_resources/node.dir"))
+  (with-files [["/node" "12345"]]
+    (def file (io/create-file (str tmp-dir "/node")))
+    (io/read-from-file file)
+    (is (= (io/get-contents file) [49 50 51 52 53]))))
