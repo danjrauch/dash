@@ -29,11 +29,11 @@
   (let [in (chan)]
     (go (loop []
           (let [op (<! in)
-                env (environ/env :clj-env)]
+                env (environ/env :clj-env)
+                ci (System/getenv "CONTINUOUS_INTEGRATION")]
             (case env
-              "test"   (spit "data/test_log" (str op "\n") :append true)
-                       (spit "data/log" (str op "\n") :append true)
-              )
+              "test"   (if (not ci) (spit "data/test_log" (str op "\n") :append true))
+                       (spit "data/log" (str op "\n") :append true))
             (recur))))
   in))
 
