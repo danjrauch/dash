@@ -5,7 +5,12 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/core.async "0.4.490"]
-                 [clj-time "0.15.0"]]
+                 [clj-time "0.15.0"]
+                 [environ "1.1.0"]]
+  :plugins [[lein-environ "1.1.0"]]
   :main ^:skip-aot dashdb.core.cli
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar {:aot :all}
+             :dev        {:env {:clj-env "development"}}
+             :test       {:env {:clj-env "test"}}
+             :production {:env {:clj-env "production"}}})
