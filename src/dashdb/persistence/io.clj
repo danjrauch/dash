@@ -2,7 +2,9 @@
 ;;;; Using transactions as inodes.
 
 (ns dashdb.persistence.io
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [clojure.core.async :refer [>! <! >!! <!! go chan buffer close! thread alts! alts!! timeout]]
+            [clj-time.local :as l]))
 
 (defprotocol File
   (get-name [this])
@@ -12,10 +14,28 @@
   (append-content [this contents])
   (concat-append [this args]))
 
+(defn bytes->string
+  [data]
+  (apply str (map char data)))
+
+(defn bytes->num
+  [data]
+  (reduce bit-or (map-indexed (fn [i x] (bit-shift-left (bit-and x 0x0FF) (* 8 (- (count data) i 1)))) data)))
+
+(defn create-log
+  "I/O logs for file operations."
+  []
+  (let [in (chan)]
+    (go (loop []
+          (let [op (<! in)]
+            (spit "data/log" (str op "\n") :append true)
+            (recur))))
+  in))
+
 (defn create-file
   "Create a new File"
   [name]
-  (let [file (java.util.HashMap. {:name name :contents (java.util.ArrayList.)})]
+  (let [file (java.util.HashMap. {:name name :contents (java.util.ArrayList.) :in (create-log)})]
     (reify
       File
       (get-name [_] (.get ^java.util.HashMap file :name))
@@ -24,12 +44,14 @@
           (vec (.get ^java.util.HashMap file :contents))))
       (read-from-file [_]
         (locking file
+          (>!! (:in file) (str (l/local-now) " Reading " (:name file)))
           (let [f (java.io.File. (.get ^java.util.HashMap file :name))
                 ary (byte-array (.length f))
                 is (java.io.FileInputStream. f)]
             (.read is ary)
             (.close is)
-            (.put ^java.util.HashMap file :contents (java.util.ArrayList. (vec ary))))))
+            (.put ^java.util.HashMap file :contents (java.util.ArrayList. (vec ary))))
+          (>!! (:in file) (str (l/local-now) " Done reading " (:name file)))))
       (append-content [_ contents]
         (locking file
           (.addAll (.get ^java.util.HashMap file :contents) (java.util.ArrayList. (vec (map byte contents))))))
@@ -38,11 +60,10 @@
           (append-content this (str/join args))))
       (write-to-file [_]
         (locking file
+          (>!! (:in file) (str (l/local-now) " Writing " (:name file) " : " (bytes->string (:contents file))))
           (let [f (java.io.File. name)
                 is (java.io.FileOutputStream. f)]
             (.write is (byte-array (.get ^java.util.HashMap file :contents)))
-            (.close is)))))))
-
-(defn bytes->num
-  [data]
-  (reduce bit-or (map-indexed (fn [i x] (bit-shift-left (bit-and x 0x0FF) (* 8 (- (count data) i 1)))) data)))
+            (.close is)
+            )
+          (>!! (:in file) (str (l/local-now) " Done writing " (:name file))))))))
