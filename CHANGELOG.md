@@ -3,7 +3,11 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 
-## 0.1.0 - 2018-11-18
+## 0.1.0 - 2018-01-02
+### Update
+- Thread-safe virtual files
+- Logging (virtual and actual file operations)
+## 0.1.0 - 2018-12-01
 ### Init
 - Project Initialization
 

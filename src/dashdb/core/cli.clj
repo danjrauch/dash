@@ -104,11 +104,11 @@
         (do
           (reset! history-cursor 0)
           (println "")
-          (if (not (= (str/trim command-buffer) "exit"))
-            (parse/parse-input (str/trim command-buffer))
-            (System/exit 0)
-            )
-          )
+          (cond 
+            (nil? command-buffer) ""
+            (= "" (str/trim command-buffer)) ""
+            (some #{(str/trim command-buffer)} '("quit" "exit")) (System/exit 0)
+            :else (parse/parse-input (str/trim command-buffer))))
         ;; On-backspace entered.
         (= input-char ascii-backspace)
         (handle-backspace command-buffer vertical-cursor-pos)
@@ -116,8 +116,7 @@
         :else
         (do
           (prints print (char input-char))
-          (recur (str command-buffer (char input-char)) (inc vertical-cursor-pos))
-          )))))
+          (recur (str command-buffer (char input-char)) (inc vertical-cursor-pos)))))))
 
 (defn addShutdownHook
   "Add a function as shutdown hook on JVM exit."

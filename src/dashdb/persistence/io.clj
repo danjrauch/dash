@@ -60,12 +60,14 @@
           (.addAll (.get ^java.util.HashMap file :contents) (java.util.ArrayList. (vec (map byte contents))))))
       (concat-append [this args]
         (locking file
-          (append-content this (str/join args))))
+          (>!! (:in file) (str (l/local-now) "|Started writing contents to virtual file|" (:name file) "|" (bytes->string (str/join " " args))))
+          (append-content this (str/join "|" args))
+          (>!! (:in file) (str (l/local-now) "|Done writing contents to virtual file|" (:name file) "|" (bytes->string (str/join " " args))))))
       (write-to-file [_]
         (locking file
           (let [f (java.io.File. name)
                 is (java.io.FileOutputStream. f)]
-            (>!! (:in file) (str (l/local-now) " Started writing " (:name file)))
+            (>!! (:in file) (str (l/local-now) "|Started writing to actual file|" (:name file)))
             (.write is (byte-array (.get ^java.util.HashMap file :contents)))
             (.close is)
-            (>!! (:in file) (str (l/local-now) " Done writing " (:name file)))))))))
+            (>!! (:in file) (str (l/local-now) "|Done writing to actual file|" (:name file)))))))))

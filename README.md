@@ -8,7 +8,8 @@ dashdb is *(will be)* a lightweight graph-based database system written with Clo
 
 ## Story
 
-dashdb is being developed as a hobby project. Development began on December 1 2018.
+dashdb is being developed as a hobby project. It strives to allow for the storage and search of entities and relationships through a tableless architecture. 
+In other words entities and relationships are first class types. It supports a cypher-like, derivative query language. Development began on December 1 2018. 
 
 ### Source 
 
@@ -23,7 +24,7 @@ Email me @ drauch@hawk.iit.edu
 
 ### Building
 
-I currently use lein, but may expand on this eventually.
+dashdb uses Leiningen.
 
 ### Docker
 
@@ -42,4 +43,4 @@ License
 ----
 Copyright © 2018 Dan Rauch
 
-Distributed under the Eclipse Public License either version 1.0 or (atyour option) any later version.
+Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.
