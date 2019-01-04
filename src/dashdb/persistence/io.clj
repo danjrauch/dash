@@ -4,8 +4,9 @@
 (ns dashdb.persistence.io
   (:require [clojure.string :as str]
             [clojure.core.async :refer [>! <! >!! <!! go chan buffer close! thread alts! alts!! timeout]]
-            [clj-time.local :as l]
-            [environ.core :as environ]))
+            [environ.core :as environ]
+            [clj-time.core :as t]
+            [clj-time.local :as l]))
 
 (defprotocol File
   (get-file-name [this])
@@ -15,6 +16,11 @@
   (write-to-file [this])
   (append-content [this contents])
   (concat-append [this args]))
+
+(defmacro standard-datetime
+  "Get the current datetime in UTC"
+  []
+  `(t/to-time-zone (l/local-now) t/utc))
 
 (defn bytes->string
   [data]
@@ -33,7 +39,7 @@
                 env (environ/env :clj-env)
                 ci (System/getenv "CONTINUOUS_INTEGRATION")]
             (case env
-              "test"   (if (not ci) (spit "data/test_log" (str op "\n") :append true))
+              "test"   (if-not ci (spit "data/test_log" (str op "\n") :append true))
                        (spit "data/log" (str op "\n") :append true))
             (recur))))
   in))
@@ -62,14 +68,16 @@
           (.addAll (.get ^java.util.HashMap file :contents) (java.util.ArrayList. (vec (map byte contents))))))
       (concat-append [this args]
         (locking file
-          (>!! (:in file) (str (l/local-now) "|Started writing contents to virtual file|" (:name file) "|" (bytes->string (str/join " " args))))
+          (>!! (:in file) (str (standard-datetime) "|SWVF|"
+                               (:name file) "|" (bytes->string (str/join " " args))))
           (append-content this (str/join "|" args))
-          (>!! (:in file) (str (l/local-now) "|Done writing contents to virtual file|" (:name file) "|" (bytes->string (str/join " " args))))))
+          (>!! (:in file) (str (standard-datetime) "|DWVF|"
+                               (:name file) "|" (bytes->string (str/join " " args))))))
       (write-to-file [_]
         (locking file
           (let [f (java.io.File. (:name file))
                 is (java.io.FileOutputStream. f)]
-            (>!! (:in file) (str (l/local-now) "|Started writing to actual file|" (:name file)))
+            (>!! (:in file) (str (standard-datetime) "|SWAF|" (:name file)))
             (.write is (byte-array (.get ^java.util.HashMap file :contents)))
             (.close is)
-            (>!! (:in file) (str (l/local-now) "|Done writing to actual file|" (:name file)))))))))
+            (>!! (:in file) (str (standard-datetime) "|DWAF|" (:name file)))))))))
