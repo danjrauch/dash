@@ -37,7 +37,7 @@
   [create_block]
   (loop [rs (re-seq #"\([A-Za-z0-9:]{1,}\)(-|<-)\[:[A-Za-z0-9:]{1,}\](-|->)\([A-Za-z0-9:]{1,}\)" create_block)]
     (when (> (count rs) 0)
-      (execute/create-rel (str/split (nth (nth rs 0) 0) #"(\(|\)|\[|\])"))
+      (execute/create-rel (subvec (str/split (nth (nth rs 0) 0) #"\(|\)|\[|\]") 1))
       (recur (rest rs)))))
 
 (defn parse-input

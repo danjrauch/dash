@@ -8,8 +8,9 @@
             [environ.core :as environ]))
 
 (defprotocol File
-  (get-name [this])
-  (get-contents [this])
+  (get-file-name [this])
+  (get-file-contents [this])
+  (set-file-name [this nname])
   (read-from-file [this])
   (write-to-file [this])
   (append-content [this contents])
@@ -43,10 +44,11 @@
   (let [file (java.util.HashMap. {:name name :contents (java.util.ArrayList.) :in (create-log)})]
     (reify
       File
-      (get-name [_] (.get ^java.util.HashMap file :name))
-      (get-contents [_]
+      (get-file-name [_] (.get ^java.util.HashMap file :name))
+      (get-file-contents [_]
         (locking file
           (vec (.get ^java.util.HashMap file :contents))))
+      (set-file-name [_ nname] (.put ^java.util.HashMap file :name nname))
       (read-from-file [_]
         (locking file
           (let [f (java.io.File. (.get ^java.util.HashMap file :name))
@@ -65,7 +67,7 @@
           (>!! (:in file) (str (l/local-now) "|Done writing contents to virtual file|" (:name file) "|" (bytes->string (str/join " " args))))))
       (write-to-file [_]
         (locking file
-          (let [f (java.io.File. name)
+          (let [f (java.io.File. (:name file))
                 is (java.io.FileOutputStream. f)]
             (>!! (:in file) (str (l/local-now) "|Started writing to actual file|" (:name file)))
             (.write is (byte-array (.get ^java.util.HashMap file :contents)))
