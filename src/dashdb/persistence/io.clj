@@ -1,6 +1,3 @@
-;;;; File read/write system for graph directory files.
-;;;; Using transactions as inodes.
-
 (ns dashdb.persistence.io
   (:require [clojure.string :as str]
             [clojure.core.async :refer [>! <! >!! <!! go chan buffer close! thread alts! alts!! timeout]]
@@ -17,10 +14,10 @@
   (append-content [this contents])
   (concat-append [this args]))
 
-(defmacro standard-datetime
+(defn standard-datetime
   "Get the current datetime in UTC"
   []
-  `(t/to-time-zone (l/local-now) t/utc))
+  (t/to-time-zone (l/local-now) t/utc))
 
 (defn bytes->string
   [data]
@@ -47,7 +44,7 @@
 (defn create-file
   "Create a new File"
   [name]
-  (let [file (java.util.HashMap. {:name name :contents (java.util.ArrayList.) :in (create-log)})]
+  (let [file (java.util.HashMap. {:name name :contents (java.util.ArrayList.) :pivot 0 :in (create-log)})]
     (reify
       File
       (get-file-name [_] (.get ^java.util.HashMap file :name))
@@ -62,22 +59,25 @@
                 is (java.io.FileInputStream. f)]
             (.read is ary)
             (.close is)
-            (.put ^java.util.HashMap file :contents (java.util.ArrayList. (vec ary))))))
+            (.put ^java.util.HashMap file :contents (java.util.ArrayList. (vec ary)))
+            (.put ^java.util.HashMap file :pivot (.length f)))))
       (append-content [_ contents]
         (locking file
           (.addAll (.get ^java.util.HashMap file :contents) (java.util.ArrayList. (vec (map byte contents))))))
       (concat-append [this args]
         (locking file
-          (>!! (:in file) (str (standard-datetime) "|SWVF|"
-                               (:name file) "|" (bytes->string (str/join " " args))))
+          (>!! (.get ^java.util.HashMap file :in) (str (standard-datetime) "|SWVF|"
+                               (.get ^java.util.HashMap file :name) "|" (bytes->string (str/join " " args))))
           (append-content this (str/join "|" args))
-          (>!! (:in file) (str (standard-datetime) "|DWVF|"
-                               (:name file) "|" (bytes->string (str/join " " args))))))
+          (>!! (.get ^java.util.HashMap file :in) (str (standard-datetime) "|DWVF|"
+                               (.get ^java.util.HashMap file :name) "|" (bytes->string (str/join " " args))))))
       (write-to-file [_]
         (locking file
-          (let [f (java.io.File. (:name file))
-                is (java.io.FileOutputStream. f)]
-            (>!! (:in file) (str (standard-datetime) "|SWAF|" (:name file)))
-            (.write is (byte-array (.get ^java.util.HashMap file :contents)))
+          (let [f (java.io.File. (.get ^java.util.HashMap file :name))
+                is (java.io.FileOutputStream. f true)]
+            (>!! (.get ^java.util.HashMap file :in) (str (standard-datetime) "|SWAF|" (.get ^java.util.HashMap file :name)))
+            (.write is (byte-array (.subList (.get ^java.util.HashMap file :contents)
+                                             (.get ^java.util.HashMap file :pivot) (.size (.get ^java.util.HashMap file :contents)))))
+            (.put ^java.util.HashMap file :pivot (.size (.get ^java.util.HashMap file :contents)))
             (.close is)
-            (>!! (:in file) (str (standard-datetime) "|DWAF|" (:name file)))))))))
+            (>!! (.get ^java.util.HashMap file :in) (str (standard-datetime) "|DWAF|" (.get ^java.util.HashMap file :name)))))))))

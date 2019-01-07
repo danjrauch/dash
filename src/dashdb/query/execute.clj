@@ -7,7 +7,7 @@
    [vector & vector] -> nil"
   [name_adjs & prop_pairs]
   (def file (io/create-file "data/node"))
-  (when (= (environ/env :clj-env) "test") (io/set-file-name file "test/test_data/node"))
+  (when (= (environ/env :clj-env) "test") (io/set-file-name file "test/test_data/t"))
   (io/read-from-file file)
   (io/concat-append file name_adjs)
   (when prop_pairs
@@ -25,7 +25,7 @@
    [vector] -> nil"
   [v]
   (def file (io/create-file "data/rel"))
-  (when (= (environ/env :clj-env) "test") (io/set-file-name file "test/test_data/rel"))
+  (when (= (environ/env :clj-env) "test") (io/set-file-name file "test/test_data/t"))
   (io/read-from-file file)
   (io/concat-append file v)
   (io/append-content file "^")
