@@ -8,11 +8,21 @@
 (defprotocol File
   (get-file-name [this])
   (get-file-contents [this])
+  (get-r-value [this])
   (set-file-name [this nname])
+  (set-r-value [this nr])
   (read-from-file [this])
   (write-to-file [this])
   (append-content [this contents])
   (concat-append [this args]))
+
+(defprotocol BManager
+  (get-file-position [this name])
+  (get-file [this name])
+  (insert-file [this name])
+  (mark-file-dirty [this name])
+  (update-file [this name])
+  (write-file-to-disk [this name]))
 
 (defn standard-datetime
   "Get the current datetime in UTC"
@@ -27,7 +37,7 @@
   [data]
   (reduce bit-or (map-indexed (fn [i x] (bit-shift-left (bit-and x 0x0FF) (* 8 (- (count data) i 1)))) data)))
 
-(defn create-log
+(defn connect-log
   "I/O logs for file operations."
   []
   (let [in (chan)]
@@ -44,14 +54,25 @@
 (defn create-file
   "Create a new File"
   [name]
-  (let [file (java.util.HashMap. {:name name :contents (java.util.ArrayList.) :pivot 0 :in (create-log)})]
+  (let [file (java.util.HashMap. {:name name :contents (java.util.ArrayList.)
+                                  :dirty false :r 0 :pivot 0 :in (connect-log)})]
     (reify
       File
-      (get-file-name [_] (.get ^java.util.HashMap file :name))
+      (get-file-name [_]
+        (locking file
+          (.get ^java.util.HashMap file :name)))
       (get-file-contents [_]
         (locking file
           (vec (.get ^java.util.HashMap file :contents))))
-      (set-file-name [_ nname] (.put ^java.util.HashMap file :name nname))
+      (get-r-value [_]
+        (locking file
+          (.get ^java.util.HashMap file :r)))
+      (set-file-name [_ nname]
+        (locking file
+          (.put ^java.util.HashMap file :name nname)))
+      (set-r-value [_ nr]
+        (locking file
+          (.put ^java.util.HashMap file :r 1)))
       (read-from-file [_]
         (locking file
           (let [f (java.io.File. (.get ^java.util.HashMap file :name))
@@ -75,9 +96,50 @@
         (locking file
           (let [f (java.io.File. (.get ^java.util.HashMap file :name))
                 is (java.io.FileOutputStream. f true)]
-            (>!! (.get ^java.util.HashMap file :in) (str (standard-datetime) "|SWAF|" (.get ^java.util.HashMap file :name)))
+            (>!! (.get ^java.util.HashMap file :in) (str (standard-datetime) "|SWAF|"
+                                                         (.get ^java.util.HashMap file :name)))
             (.write is (byte-array (.subList (.get ^java.util.HashMap file :contents)
-                                             (.get ^java.util.HashMap file :pivot) (.size (.get ^java.util.HashMap file :contents)))))
+                                             (.get ^java.util.HashMap file :pivot)
+                                             (.size (.get ^java.util.HashMap file :contents)))))
             (.put ^java.util.HashMap file :pivot (.size (.get ^java.util.HashMap file :contents)))
             (.close is)
-            (>!! (.get ^java.util.HashMap file :in) (str (standard-datetime) "|DWAF|" (.get ^java.util.HashMap file :name)))))))))
+            (>!! (.get ^java.util.HashMap file :in) (str (standard-datetime) "|DWAF|"
+                                                         (.get ^java.util.HashMap file :name)))))))))
+
+(defn initialize-buffer-file-array
+  [size]
+  (let [files (java.util.ArrayList.)]
+    (doseq [n (range size)] (.add files (create-file "No File"))) files))
+
+(defn create-buffer-manager
+  "Create a new buffer manager"
+  [size]
+  (let [bmanager (java.util.HashMap. {:files (initialize-buffer-file-array size) :hand 0})]
+  (reify
+    BManager
+    (get-file-position [_ name]
+      (first (keep-indexed #(if (= name (get-file-name %2)) %1) (.get ^java.util.HashMap bmanager :files))))
+    (get-file [this name]
+      (first (filter #(= name (get-file-name %)) (.get ^java.util.HashMap bmanager :files))))
+    (insert-file [this name]
+      (locking bmanager
+        (when (nil? (get-file-position this name))
+          (loop [pos (.get ^java.util.HashMap bmanager :hand)]
+            (if (< pos (.size (.get ^java.util.HashMap bmanager :files)))
+              (do
+                (if (= (get-r-value (.get (.get ^java.util.HashMap bmanager :files) pos)) 0)
+                  (do
+                    (set-file-name (.get (.get ^java.util.HashMap bmanager :files) pos) name)
+                    (read-from-file (.get (.get ^java.util.HashMap bmanager :files) pos))
+                    (set-r-value (.get (.get ^java.util.HashMap bmanager :files) pos) 1)
+                    (.put ^java.util.HashMap bmanager :hand (inc (.get ^java.util.HashMap bmanager :hand))))
+                  (do
+                    (set-r-value (.get (.get ^java.util.HashMap bmanager :files) pos) 0)
+                    (.put ^java.util.HashMap bmanager :hand (inc (.get ^java.util.HashMap bmanager :hand)))
+                    (recur (.get ^java.util.HashMap bmanager :hand)))))
+              (do
+                (.put ^java.util.HashMap bmanager :hand 0)
+                (recur (.get ^java.util.HashMap bmanager :hand))))))))
+    (mark-file-dirty [_ name])
+    (update-file [_ name])
+    (write-file-to-disk [_ name]))))
