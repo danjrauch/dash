@@ -1,0 +1,52 @@
+1. What is the database description?
+
+   The database is an immutable graph database that supports a custom query language.
+   It also supports both bulk and individual upload of schemaless data. While the data
+   is not based on a schema, it follows the format of (name:type:... {attribute: ...,}).
+
+2. How large do you expect the graphs to be?
+
+   1. 0.5 gigabyte of raw data
+
+3. What kind of graph queries do you want to support?
+
+   1. matching queries on base nodes, so starting at some node, find all the paths that
+      match the query path. Something like:
+        match (node:type:... {attribute:..., })-[:rel_type]-(etc etc)-[:etc etc]
+        where max depth = {i}
+        | if any point = '', return all qualified nodes fitting that criteria.
+   2. structural statistics about the graph.
+
+4. What data structures are used to encode the graphs?
+
+   The raw data (nodes and relationships) is stored in a series of data files holding
+   a certain number of data elements each separated by a special character.
+   Each data element has a unique, machine-generated ID. A series of "mapping" csv
+   files contain the node and relationship (ID, Filename, Offset #) mappings. Another
+   series of "mapping" files contain relationship meta-data of the following format.
+
+                      1     2         3         4
+                     +-+---------+---------+---------+
+                     | |         |         |         |
+                     +-+---------+---------+---------+
+
+    Bit Sections           Purpose             Length(bits)
+         1          active bit                      1
+         2          next relationship              32
+         3          relationship ID                32
+         4          node ID                        32
+
+    In order to create a fast system I can periodically reorder files with a "reorder" command.
+    I can reorder nodes using decreasing sort by node centrality measure.
+    Then I can reorder relationships by grouping together and ordering by the implicit
+    adjacency lists created by the relationship meta-data blocks. I'm hoping this is will
+    improve spacial locality which will improve temporal locality.
+
+    I'm still not decided on how to query using the implicit graph in the files or if the
+    above is even feasible. I'm leaning toward not building the whole graph in memory because
+    it would take up too much space on a single machine. That's probably quite obvious. But
+    I also want it to be as fast as possible. Definately need to do more research.
+
+    I also want to do something to record transactions with timestamps so the database can be
+    queried from different states. I think it would be a good idea to provide the ability to
+    query the database as a user in the past. So the database's state as of last Tuesday.

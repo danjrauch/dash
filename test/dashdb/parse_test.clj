@@ -10,14 +10,14 @@
     (def file (io/create-file (str tmp-dir "/t")))
     (parse/parse-create-node-block "(a:b)")
     (io/read-from-file file)
-    (is (= (io/bytes->string (io/get-file-contents file)) "a|b^"))
+    (is (= (io/bytes->string (io/get-contents file)) "a|b^"))
     (parse/parse-create-node-block "(c:d {e:f})")
     (io/read-from-file file)
-    (is (= (io/bytes->string (io/get-file-contents file)) "a|b^c|d@e|f^"))))
+    (is (= (io/bytes->string (io/get-contents file)) "a|b^c|d@e|f^"))))
 
 (deftest parse-create-rel-block-test
   (with-files [["/t"]]
     (def file (io/create-file (str tmp-dir "/t")))
     (parse/parse-create-rel-block "(a)-[:b]->(c)")
     (io/read-from-file file)
-    (is (= (io/bytes->string (io/get-file-contents file)) "a|-|:b|->|c^"))))
+    (is (= (io/bytes->string (io/get-contents file)) "a|-|:b|->|c^"))))
