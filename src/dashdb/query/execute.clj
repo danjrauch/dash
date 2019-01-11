@@ -1,36 +1,44 @@
 (ns dashdb.query.execute
-  (:require [dashdb.persistence.io :as io]
-            [environ.core :as environ]))
+  (:require [dashdb.persistence.io :refer :all :as io]
+            [environ.core :as environ]
+            [dashdb.crypto.id :as id]))
 
 (defn create-node
   "Execute the create action for an individual record.
-   [vector & vector] -> nil"
+   [vector & vector] -> string"
   [name_adjs & prop_pairs]
-  (def file (io/create-file "data/node"))
-  (when (= (environ/env :clj-env) "test") (io/set-name file "test/test_data/t"))
-  (io/read-from-file file)
-  (io/concat-append file name_adjs)
+  ;; Node writing
+  (if (= (environ/env :clj-env) "test") 
+    (def nodefilename "test/test_data/node")
+    (def nodefilename "data/node"))
+  (io/pin-file BM nodefilename)
+  (def nodefile (io/get-file BM nodefilename))
+  (io/concat-append nodefile name_adjs)
   (when prop_pairs
-    (io/append-content file "@")
-    (io/concat-append file (nth prop_pairs 0)))
-  (io/append-content file "^")
-  (io/write-to-file file)
+    (io/append-content nodefile "@")
+    (io/concat-append nodefile (nth prop_pairs 0)))
+  (io/append-content nodefile "^")
+  (io/write-to-file nodefile)
   (when (not= (environ/env :clj-env) "test")
     (println "+---------------------------+")
     (println "| Successfully created node |")
-    (println "+---------------------------+")))
+    (println "+---------------------------+"))
+  (id/create-id))
 
 (defn create-rel
   "Execute the create action for an individual record.
-   [vector] -> nil"
+   [vector] -> string"
   [v]
-  (def file (io/create-file "data/rel"))
-  (when (= (environ/env :clj-env) "test") (io/set-name file "test/test_data/t"))
-  (io/read-from-file file)
+  (if (= (environ/env :clj-env) "test") 
+    (def filename "test/test_data/rel")
+    (def filename "data/rel"))
+  (io/pin-file BM filename)
+  (def file (io/get-file BM filename))
   (io/concat-append file v)
   (io/append-content file "^")
   (io/write-to-file file)
   (when (not= (environ/env :clj-env) "test")
     (println "+-----------------------------------+")
     (println "| Successfully created relationship |")
-    (println "+-----------------------------------+")))
+    (println "+-----------------------------------+"))
+  (id/create-id))

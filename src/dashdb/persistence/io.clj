@@ -89,9 +89,10 @@
             (.close is)
             (.put ^java.util.HashMap file :contents (java.util.ArrayList. (vec ary)))
             (.put ^java.util.HashMap file :pivot (.length f)))))
-      (append-content [_ contents]
+      (append-content [this contents]
         (locking file
-          (.addAll (.get ^java.util.HashMap file :contents) (java.util.ArrayList. (vec (map byte contents))))))
+          (.addAll (.get ^java.util.HashMap file :contents) (java.util.ArrayList. (vec (map byte contents))))
+          (set-dirty-value this true)))
       (concat-append [this args]
         (locking file
           (>!! (.get ^java.util.HashMap file :in) (str (standard-datetime) "|SWVF|"
@@ -162,3 +163,5 @@
           (when (= (get-dirty-value x) true)
             (write-to-file x)
             (set-dirty-value x false))))))))
+
+(def BM (create-buffer-manager 10))

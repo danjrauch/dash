@@ -82,7 +82,6 @@
     (io/pin-file bm (str tmp-dir "/t1"))
     (def file (io/get-file bm (str tmp-dir "/t1")))
     (io/append-content file "1234")
-    (io/set-dirty-value file true)
     (io/unpin-file bm (str tmp-dir "/t1"))
     (io/read-from-file file)
     (is (= (io/bytes->string (io/get-contents file)) "1234"))
@@ -117,7 +116,6 @@
     (def bm (io/create-buffer-manager 5))
     (io/pin-file bm (str tmp-dir "/t1"))
     (io/append-content (io/get-file bm (str tmp-dir "/t1")) "34")
-    (io/set-dirty-value (io/get-file bm (str tmp-dir "/t1")) true)
     (doseq [x (range 2 11)]
       (io/pin-file bm (str tmp-dir "/t" x)))
     (def file (io/create-file (str tmp-dir "/t1")))
@@ -130,8 +128,7 @@
     (def bm (io/create-buffer-manager 10))
     (doseq [x (range 1 11)]
       (io/pin-file bm (str tmp-dir "/t" x))
-      (io/append-content (io/get-file bm (str tmp-dir "/t" x)) (str x x x))
-      (io/set-dirty-value (io/get-file bm (str tmp-dir "/t" x)) true))
+      (io/append-content (io/get-file bm (str tmp-dir "/t" x)) (str x x x)))
     (io/write-files-to-disk bm)
     (doseq [x (range 1 11)]
       (def file (io/get-file bm (str tmp-dir "/t" x)))

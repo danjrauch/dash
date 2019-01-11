@@ -2,9 +2,9 @@
 
 (defn create-id
   "Create an entity ID"
-  [length]
+  []
   (loop [id ""
-         l length]
+         l 10]
     (if (= l 0)
       id
-      (recur (str id (char (rand-int 256))) (dec l)))))
+      (recur (str id (char (+ 65 (rand-int 26)))) (dec l)))))

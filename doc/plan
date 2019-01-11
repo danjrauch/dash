@@ -16,6 +16,9 @@
         where max depth = {i}
         | if any point = '', return all qualified nodes fitting that criteria.
    2. structural statistics about the graph.
+   
+   I plan to use Stanford's large network dataset collection to test this database. 
+   First I think I'll use the one at this link: https://snap.stanford.edu/data/soc-sign-bitcoin-alpha.html 
 
 4. What data structures are used to encode the graphs?
 

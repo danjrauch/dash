@@ -4,9 +4,9 @@
 
 # dashdb [![Build Status](https://travis-ci.org/danjrauch/dashDB.svg?branch=master)](https://travis-ci.org/danjrauch/dashDB)
 
-dashdb is *(will be)* a lightweight graph-based database system written with Clojure. It's also the predecessor to rubik (a scalable future version of dashdb).
+dashdb is *(will be)* a lightweight graph-based database system written with Clojure.
 
-## Story
+## Description
 
 dashdb is being developed as a hobby project. It strives to allow for the storage and search of entities and relationships through a tableless architecture. 
 In other words entities and relationships are first class types. It supports a cypher-like, derivative query language. Development began on December 1 2018. 
@@ -19,7 +19,7 @@ git clone https://github.com/danjrauch/dashDB dashdb
 
 ### Development
 
-Want to contribute? Great!
+Want to contribute?
 Email me @ drauch@hawk.iit.edu
 
 ### Building
