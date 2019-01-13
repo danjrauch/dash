@@ -22,6 +22,12 @@
     (io/read-from-file file)
     (is (= (io/bytes->string (io/get-contents file)) "12345"))))
 
+(deftest create-file-on-write
+  (def file (io/create-file (str tmp-dir "/t")))
+  (io/append-content file "123")
+  (io/write-to-file file)
+  (is (= (io/bytes->string (io/get-contents file)) "123")))
+
 (deftest multiple-read-write-test
   (with-files [["/t" "1"]]
     (def file (io/create-file (str tmp-dir "/t")))

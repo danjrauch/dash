@@ -3,7 +3,8 @@
             [clojure.core.async :refer [>! <! >!! <!! go chan buffer close! thread alts! alts!! timeout]]
             [environ.core :as environ]
             [clj-time.core :as t]
-            [clj-time.local :as l]))
+            [clj-time.local :as l]
+            [clojure.java.io :as io]))
 
 (defprotocol File
   (get-name [this])
@@ -82,6 +83,8 @@
           (.put ^java.util.HashMap file :dirty nd)))
       (read-from-file [_]
         (locking file
+          (when (not (.exists (io/file (.get ^java.util.HashMap file :name))))
+            (.mkdirs (.getParentFile (io/file (.get ^java.util.HashMap file :name)))))
           (let [f (java.io.File. (.get ^java.util.HashMap file :name))
                 ary (byte-array (.length f))
                 is (java.io.FileInputStream. f)]
@@ -102,6 +105,8 @@
                                (.get ^java.util.HashMap file :name) "|" (bytes->string (str/join " " args))))))
       (write-to-file [_]
         (locking file
+          (when (not (.exists (io/file (.get ^java.util.HashMap file :name))))
+            (.mkdirs (.getParentFile (io/file (.get ^java.util.HashMap file :name)))))
           (let [f (java.io.File. (.get ^java.util.HashMap file :name))
                 is (java.io.FileOutputStream. f true)]
             (>!! (.get ^java.util.HashMap file :in) (str (standard-datetime) "|SWAF|"
