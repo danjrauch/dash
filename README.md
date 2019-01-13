@@ -1,7 +1,5 @@
-<p align="center">
-  <img src="./logos/dashlogo_small.png">
-</p>
 
+![dashdb](./logos/dashlogo_readme.png "dashdb")
 [![Build Status](https://travis-ci.org/danjrauch/dashDB.svg?branch=master)](https://travis-ci.org/danjrauch/dashDB)
 
 dashdb is *(will be)* a lightweight graph-based database system written with Clojure.
