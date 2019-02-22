@@ -1,8 +1,8 @@
-(ns dashdb.io-test
+(ns dash.io-test
   (:require [clojure.test :refer :all]
             [clojure.string :as str]
             [clojure.java.io :as javaio]
-            [dashdb.persistence.io :refer :all :as io]
+            [dash.persistence.io :refer :all :as io]
             [test.util :refer :all]))
 
 ;; File Tests

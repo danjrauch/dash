@@ -1,3 +1,2 @@
-# Introduction to dashDB
-
+# Introduction to dash
 

@@ -1,8 +1,8 @@
-(ns dashdb.parse-test
+(ns dash.parse-test
   (:require [clojure.test :refer :all]
             [clojure.java.io :as javaio]
-            [dashdb.query.parse :refer :all :as parse]
-            [dashdb.persistence.io :refer :all :as io]
+            [dash.query.parse :refer :all :as parse]
+            [dash.persistence.io :refer :all :as io]
             [test.util :refer :all]))
 
 (deftest parse-create-node-block-test

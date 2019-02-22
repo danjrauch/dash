@@ -1,4 +1,4 @@
-(ns dashdb.persistence.io
+(ns dash.persistence.io
   (:require [clojure.string :as str]
             [clojure.core.async :refer [>! <! >!! <!! go chan buffer close! thread alts! alts!! timeout]]
             [environ.core :as environ]

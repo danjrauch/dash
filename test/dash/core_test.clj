@@ -1,4 +1,4 @@
-(ns dashdb.core-test
+(ns dash.core-test
   (:require [clojure.test :refer :all]
             [clojure.java.io :as javaio]
             [test.util :refer :all]))

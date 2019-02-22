@@ -1,7 +1,7 @@
-(ns dashdb.query.execute
-  (:require [dashdb.persistence.io :refer :all :as io]
+(ns dash.query.execute
+  (:require [dash.persistence.io :refer :all :as io]
             [environ.core :as environ]
-            [dashdb.crypto.id :as id]))
+            [dash.crypto.id :as id]))
 
 (defn create-node
   "Execute the create action for an individual record.

@@ -1,5 +1,5 @@
-(ns dashdb.core.cli
-  (:require [dashdb.query.parse :as parse]
+(ns dash.core.cli
+  (:require [dash.query.parse :as parse]
             [clojure.string :as str])
   (:gen-class)
   (:use clojure.java.shell))

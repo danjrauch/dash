@@ -1,6 +1,6 @@
-(ns dashdb.crypto-test
+(ns dash.crypto-test
   (:require [clojure.test :refer :all]
-            [dashdb.crypto.id :refer :all :as id]
+            [dash.crypto.id :refer :all :as id]
             [test.util :refer :all]))
 
 (deftest crypto-create-id-test

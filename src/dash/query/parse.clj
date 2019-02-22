@@ -1,8 +1,8 @@
-(ns dashdb.query.parse
+(ns dash.query.parse
   (:require [clojure.string :as str]
-            [dashdb.query.execute :as execute]
-            [dashdb.query.regex :refer :all]
-            [dashdb.persistence.io :refer :all :as io]
+            [dash.query.execute :as execute]
+            [dash.query.regex :refer :all]
+            [dash.persistence.io :refer :all :as io]
             [environ.core :as environ]
             [clj-time.core :as t]
             [clj-time.local :as l]))
