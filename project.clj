@@ -6,7 +6,8 @@
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/core.async "0.4.490"]
                  [clj-time "0.15.0"]
-                 [environ "1.1.0"]]
+                 [environ "1.1.0"]
+                 [clj-commons/spinner "0.6.0"]]
   :plugins [[lein-environ "1.1.0"]]
   :main ^:skip-aot dash.core.cli
   :target-path "target/%s"

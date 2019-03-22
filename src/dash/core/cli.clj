@@ -1,6 +1,7 @@
 (ns dash.core.cli
-  (:require [dash.query.parse :as parse]
-            [clojure.string :as str])
+  (:require [dash.core.main :as main]
+            [clojure.string :as str]
+            [spinner.core :as spin])
   (:gen-class)
   (:use clojure.java.shell))
 
@@ -108,7 +109,7 @@
             (nil? command-buffer) ""
             (= "" (str/trim command-buffer)) ""
             (some #{(str/trim command-buffer)} '("quit" "exit")) (System/exit 0)
-            :else (parse/parse-input (str/trim command-buffer))))
+            :else (main/direct-query-input (str/trim command-buffer))))
         ;; On-backspace entered.
         (= input-char ascii-backspace)
         (handle-backspace command-buffer vertical-cursor-pos)

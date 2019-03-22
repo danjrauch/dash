@@ -1,23 +1,31 @@
 (ns dash.parse-test
   (:require [clojure.test :refer :all]
             [clojure.java.io :as javaio]
-            [dash.query.parse :refer :all :as parse]
-            [dash.persistence.io :refer :all :as io]
+            [dash.query.parse :as parse]
+            [dash.persistence.io :as io]
             [test.util :refer :all]))
 
-(deftest parse-create-node-block-test
-  (with-files [["/node"]["/transactions"]]
-    (def file (io/create-file (str tmp-dir "/node")))
-    (parse/parse-create-node-block "(a:b)")
-    (io/read-from-file file)
-    (is (= (io/bytes->string (io/get-contents file)) "a|b^"))
-    (parse/parse-create-node-block "(c:d {e:f})")
-    (io/read-from-file file)
-    (is (= (io/bytes->string (io/get-contents file)) "a|b^c|d@e|f^"))))
+(deftest parse-entity-with-properties-test
+  (let [{name_adjs :name_adjs prop_pairs :prop_pairs} (parse/parse-entity-with-properties "(c:d {e:f})")]
+    (is (= name_adjs '("c" "d")))
+    (is (= prop_pairs '("e" "f"))))
+  )
 
-(deftest parse-create-rel-block-test
-  (with-files [["/rel"]["/transactions"]]
-    (def file (io/create-file (str tmp-dir "/rel")))
-    (parse/parse-create-rel-block "(a)-[:b]->(c)")
-    (io/read-from-file file)
-    (is (= (io/bytes->string (io/get-contents file)) "a|-|:b|->|c^"))))
+(deftest parse-entity-without-properties-test
+  (let [{name_adjs :name_adjs} (parse/parse-entity-without-properties "(a:b)")]
+    (is (= name_adjs '("a" "b"))))
+  )
+
+(deftest parse-create-node-block-test
+  (let [{name_adjs :name_adjs} (parse/parse-create-node-block "(a:b)")]
+    (is (= name_adjs '("a" "b"))))
+  (let [{name_adjs :name_adjs prop_pairs :prop_pairs} (parse/parse-create-node-block "(c:d {e:f})")]
+    (is (= name_adjs '("c" "d")))
+    (is (= prop_pairs '("e" "f"))))
+  )
+
+(deftest parse-create-relationship-block-test
+  (let [{name_adjs :name_adjs prop_pairs :prop_pairs} (parse/parse-create-node-block "(c:d {e:f})")]
+    (is (= name_adjs '("c" "d")))
+    (is (= prop_pairs '("e" "f"))))
+  )
