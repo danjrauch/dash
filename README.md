@@ -4,8 +4,7 @@ A lightweight graph-based database system written with Clojure.
 
 ## Description
 
-dash is being developed as a hobby project. It strives to allow for the storage and search of entities and relationships through a tableless architecture. 
-In other words entities and relationships are first class types. It supports a cypher-like, derivative query language. Development began on December 1 2018. 
+dash is being developed as a hobby project. It strives to allow for the storage and search of graphs. Development began on December 1 2018. 
 
 ### Source 
 
@@ -13,14 +12,14 @@ In other words entities and relationships are first class types. It supports a c
 git clone https://github.com/danjrauch/dash dash
 ```
 
-### Development
+<!-- ### Development
 
 Want to contribute?
 Email me @ drauch@hawk.iit.edu
 
 ### Building
 
-dash uses Leiningen.
+dash uses Leiningen. -->
 
 ### Docker
 
@@ -36,6 +35,17 @@ docker start -i dash
 to restart the container.
 
 ## Usage
+
+# Create
+
+Commands to create new nodes look like this: 
+```sh
+create (name:type:... {attribute:...})
+```
+Commands to create new relationships look like this:
+```sh
+create (name)- or <-[:connection type]- or ->(name)
+```
 
 
 

@@ -141,3 +141,6 @@
       (io/read-from-file file)
       (is (= (io/bytes->string (io/get-contents file)) (str x x x)))
       (is (= (io/get-dirty-value file) false)))))
+
+; User I/O Function Tests
+

@@ -26,15 +26,13 @@
   {:name_adjs name_adjs})
 
 (defn parse-create-node-block
-  "Parse the create node block of the query and execute it.
-   string -> {}"
+  "Parse the create node block of the query and execute it."
   [node_block]
   (if (not-empty (re-find #"\(\s*[A-Za-z0-9:]*?\s*\{.*?\}\s*\)" node_block))
     (parse-entity-with-properties node_block)
     (parse-entity-without-properties node_block)))
 
 (defn parse-create-relationship-block
-  "Parse the create relationship block of the query and return it.
-   [string] -> nil"
+  "Parse the create relationship block of the query and return it."
   [relationship_block]
   (map str/trim (subvec (str/split relationship_block #"\(|\)|\[|\]") 1)))
