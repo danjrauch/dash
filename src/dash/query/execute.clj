@@ -1,6 +1,6 @@
 (ns dash.query.execute
   (:require [dash.persistence.io :as io]
-            [dash.persistence.write :as write]
+            [dash.data.write :as write]
             [dash.query.parse :as parse]
             [dash.crypto.id :as id]))
 
@@ -21,4 +21,3 @@
   [graph_name raw_relationship_query]
   (doseq [block (re-seq #"\([A-Za-z0-9:]{1,}\)(-|<-)\[:[A-Za-z0-9:]{1,}\](-|->)\([A-Za-z0-9:]{1,}\)" raw_relationship_query)]
     (write/create-relationship graph_name (parse/parse-create-relationship-block (nth block 0)))))
-  

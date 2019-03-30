@@ -4,7 +4,8 @@
             [environ.core :as environ]
             [clj-time.core :as t]
             [clj-time.local :as l]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [dash.data.transform :as transform]))
 
 (defprotocol File
   (get-name [this])
@@ -22,6 +23,8 @@
 (defprotocol BManager
   (get-file-position [this name])
   (get-file [this name])
+  (get-files [this])
+  (clear-files [this])
   (pin-file [this name])
   (unpin-file [this name])
   (write-files-to-disk [this]))
@@ -91,11 +94,11 @@
           (set-dirty-value this true)))
       (concat-append [this args]
         (locking file
-          (>!! (.get ^java.util.HashMap file :in) (str (standard-datetime) "|SWVF|"
-                               (.get ^java.util.HashMap file :name) "|" (bytes->string (str/join " " args))))
+          (>!! (.get ^java.util.HashMap file :in) (str (transform/standard-datetime) "|SWVF|"
+                               (.get ^java.util.HashMap file :name) "|" (transform/bytes->string (str/join " " args))))
           (append-content this (str/join "|" args))
-          (>!! (.get ^java.util.HashMap file :in) (str (standard-datetime) "|DWVF|"
-                               (.get ^java.util.HashMap file :name) "|" (bytes->string (str/join " " args))))))
+          (>!! (.get ^java.util.HashMap file :in) (str (transform/standard-datetime) "|DWVF|"
+                               (.get ^java.util.HashMap file :name) "|" (transform/bytes->string (str/join " " args))))))
       (write-to-disk [_]
         (locking file
           (when (not (.exists (io/file (.get ^java.util.HashMap file :name))))
@@ -103,14 +106,14 @@
             (.createNewFile (io/file (.get ^java.util.HashMap file :name))))
           (let [f (java.io.File. (.get ^java.util.HashMap file :name))
                 is (java.io.FileOutputStream. f true)]
-            (>!! (.get ^java.util.HashMap file :in) (str (standard-datetime) "|SWAF|"
+            (>!! (.get ^java.util.HashMap file :in) (str (transform/standard-datetime) "|SWAF|"
                                                          (.get ^java.util.HashMap file :name)))
             (.write is (byte-array (.subList (.get ^java.util.HashMap file :contents)
                                              (.get ^java.util.HashMap file :pivot)
                                              (.size (.get ^java.util.HashMap file :contents)))))
             (.put ^java.util.HashMap file :pivot (.size (.get ^java.util.HashMap file :contents)))
             (.close is)
-            (>!! (.get ^java.util.HashMap file :in) (str (standard-datetime) "|DWAF|"
+            (>!! (.get ^java.util.HashMap file :in) (str (transform/standard-datetime) "|DWAF|"
                                                          (.get ^java.util.HashMap file :name)))))))))
 
 (defn initialize-buffer-file-array
@@ -126,8 +129,17 @@
     BManager
     (get-file-position [_ name]
       (first (keep-indexed #(if (= name (get-name %2)) %1) (.get ^java.util.HashMap bmanager :files))))
-    (get-file [this name]
+    (get-file [_ name]
       (first (filter #(= name (get-name %)) (.get ^java.util.HashMap bmanager :files))))
+    (get-files [_]
+      (vec (.get ^java.util.HashMap bmanager :files)))
+    (clear-files [_]
+      (locking bmanager
+        (doseq [file (.get ^java.util.HashMap bmanager :files)]
+          (when (= (get-dirty-value file) true)
+            (write-to-disk file)
+            (set-dirty-value file false))
+          (set-name file "No File"))))
     (pin-file [this name]
       (locking bmanager
         (def file-to-pin (get-file this name))
@@ -158,16 +170,15 @@
             (set-dirty-value file-to-unpin false)))))
     (write-files-to-disk [_]
       (locking bmanager
-        (doseq [x (.get ^java.util.HashMap bmanager :files)]
-          (when (= (get-dirty-value x) true)
-            (write-to-disk x)
-            (set-dirty-value x false))))))))
+        (doseq [file (.get ^java.util.HashMap bmanager :files)]
+          (when (= (get-dirty-value file) true)
+            (write-to-disk file)
+            (set-dirty-value file false))))))))
 
 (def BM (create-buffer-manager 10))
 
 (defn provide-file
   ""
-  [graph_name file_name]
-  (def filename (str "data/" graph_name "/" file_name))
-  (pin-file BM filename)
-  (get-file BM filename))
+  [path]
+  (pin-file BM path)
+  (get-file BM path))

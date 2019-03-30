@@ -1,6 +1,5 @@
 (ns dash.core.cli
   (:require [clojure.string :as str]
-            [spinner.core :as spin]
             [dash.core.launch :as launch])
   (:gen-class)
   (:use clojure.java.shell))
@@ -62,7 +61,7 @@
        (flush)
        (recur ~command-buffer (inc ~vertical-cursor-pos)))
      (recur ~command-buffer ~vertical-cursor-pos)))
- 
+
 ;; Handles right key stroke that moves the cursor to the right,
 ;; if it is not the case, that the cursor is located in its
 ;; most right position.
@@ -104,8 +103,8 @@
         (= input-char ascii-enter)
         (do
           (reset! history-cursor 0)
-          (println "  ")
-          (cond 
+          (print "  ")
+          (cond
             (nil? command-buffer) ""
             (= "" (str/trim command-buffer)) ""
             (some #{(str/trim command-buffer)} '("quit" "exit")) (do (println) (System/exit 0))

@@ -1,7 +1,6 @@
 (ns dash.query.parse
   (:require [clojure.string :as str]
             [dash.persistence.io :refer :all :as io]
-            [environ.core :as environ]
             [clj-time.core :as t]
             [clj-time.local :as l]))
 
