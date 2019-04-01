@@ -13,6 +13,7 @@
     (write/create-graph "create_graph_test_graph")
     (is (true? (.exists (clojure.java.io/file (str tmp_dir "/create_graph_test_graph/node")))))
     (is (true? (.exists (clojure.java.io/file (str tmp_dir "/create_graph_test_graph/rel")))))
+    (is (true? (.exists (clojure.java.io/file (str tmp_dir "/create_graph_test_graph/stats")))))
     (is (true? (contains? @global_graph_set "create_graph_test_graph")))
     (is (true? (contains? (read/get-graph-names) "create_graph_test_graph")))))
 
@@ -32,3 +33,18 @@
     (write/create-relationship "create_relationship_test_graph" (parse/parse-create-relationship-block "(a)-[:b]->(c)"))
     (def rel_file (io/provide-file (str tmp_dir "/create_relationship_test_graph/rel")))
     (is (= (transform/bytes->string (io/get-contents rel_file)) "a|-|:b|->|c^"))))
+
+(deftest delete-graph-test
+  (with-tmp-dir
+    (write/create-graph "delete_graph_test_graph")
+    (is (true? (.exists (clojure.java.io/file (str tmp_dir "/delete_graph_test_graph/node")))))
+    (is (true? (.exists (clojure.java.io/file (str tmp_dir "/delete_graph_test_graph/rel")))))
+    (is (true? (.exists (clojure.java.io/file (str tmp_dir "/delete_graph_test_graph/stats")))))
+    (is (true? (contains? @global_graph_set "delete_graph_test_graph")))
+    (is (true? (contains? (read/get-graph-names) "delete_graph_test_graph")))
+    (write/delete-graph "delete_graph_test_graph")
+    (is (false? (.exists (clojure.java.io/file (str tmp_dir "/delete_graph_test_graph/node")))))
+    (is (false? (.exists (clojure.java.io/file (str tmp_dir "/delete_graph_test_graph/rel")))))
+    (is (false? (.exists (clojure.java.io/file (str tmp_dir "/delete_graph_test_graph/stats")))))
+    (is (false? (contains? @global_graph_set "delete_graph_test_graph")))
+    (is (false? (contains? (read/get-graph-names) "delete_graph_test_graph")))))

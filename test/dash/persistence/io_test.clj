@@ -86,11 +86,11 @@
     (io/pin-file bm (str tmp_dir "/t1"))
     (def file (io/get-file bm (str tmp_dir "/t1")))
     (io/append-content file "1234")
-    (io/unpin-file bm (str tmp_dir "/t1"))
-    (io/read-from-disk file)
     (is (= (transform/bytes->string (io/get-contents file)) "1234"))
-    (is (= (io/get-dirty-value file) false))
-    (is (= (io/get-r-value file) 0))))
+    (is (= (io/get-dirty-value file) true))
+    (is (= (io/get-r-value file) 1))
+    (io/unpin-file bm (str tmp_dir "/t1"))
+    (is (= (io/get-file bm (str tmp_dir "/t1")) nil))))
 
 (deftest pin-file-to-overflow-test
   (with-files [["/t1"]["/t2"]["/t3"]["/t4"]["/t5"]["/t6"]["/t7"]["/t8"]["/t9"]["/t10"]]

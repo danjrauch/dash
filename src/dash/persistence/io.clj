@@ -7,28 +7,6 @@
             [clojure.java.io :as io]
             [dash.data.transform :as transform]))
 
-(defprotocol File
-  (get-name [this])
-  (get-contents [this])
-  (get-r-value [this])
-  (get-dirty-value [this])
-  (set-name [this nname])
-  (set-r-value [this nr])
-  (set-dirty-value [this nd])
-  (read-from-disk [this])
-  (write-to-disk [this])
-  (append-content [this contents])
-  (concat-append [this args]))
-
-(defprotocol BManager
-  (get-file-position [this name])
-  (get-file [this name])
-  (get-files [this])
-  (clear-files [this])
-  (pin-file [this name])
-  (unpin-file [this name])
-  (write-files-to-disk [this]))
-
 (defn connect-log
   "I/O logs for file operations."
   []
@@ -43,10 +21,30 @@
             (recur))))
   in))
 
-(defn create-path
-  ""
-  [path]
-  (.mkdirs (io/file path)))
+; (>!! (.get ^java.util.HashMap file :in) (str (transform/standard-datetime) "|DWVF|"
+          ;                      (.get ^java.util.HashMap file :name) "|" (transform/bytes->string (str/join " " args))))
+
+(defprotocol File
+  (get-name [this])
+  (get-contents [this])
+  (get-r-value [this])
+  (get-dirty-value [this])
+  (set-name [this nname])
+  (set-r-value [this nr])
+  (set-dirty-value [this nd])
+  (read-from-disk [this])
+  (write-to-disk [this])
+  (append-content [this contents])
+  (concat-append [this args separator]))
+
+(defprotocol BManager
+  (get-file-position [this name])
+  (get-file [this name])
+  (get-files [this])
+  (clear-files [this])
+  (pin-file [this name])
+  (unpin-file [this name])
+  (write-files-to-disk [this]))
 
 (defn create-file
   "Create a new File structure"
@@ -92,13 +90,9 @@
         (locking file
           (.addAll (.get ^java.util.HashMap file :contents) (java.util.ArrayList. (vec (map byte contents))))
           (set-dirty-value this true)))
-      (concat-append [this args]
+      (concat-append [this args separator]
         (locking file
-          (>!! (.get ^java.util.HashMap file :in) (str (transform/standard-datetime) "|SWVF|"
-                               (.get ^java.util.HashMap file :name) "|" (transform/bytes->string (str/join " " args))))
-          (append-content this (str/join "|" args))
-          (>!! (.get ^java.util.HashMap file :in) (str (transform/standard-datetime) "|DWVF|"
-                               (.get ^java.util.HashMap file :name) "|" (transform/bytes->string (str/join " " args))))))
+          (append-content this (str/join separator args))))
       (write-to-disk [_]
         (locking file
           (when (not (.exists (io/file (.get ^java.util.HashMap file :name))))
@@ -164,10 +158,11 @@
       (locking bmanager
         (def file-to-unpin (get-file this name))
         (when (not (nil? file-to-unpin))
-          (set-r-value file-to-unpin 0)
           (when (= (get-dirty-value file-to-unpin) true)
             (write-to-disk file-to-unpin)
-            (set-dirty-value file-to-unpin false)))))
+            (set-dirty-value file-to-unpin false))
+          (set-r-value file-to-unpin 0)
+          (set-name file-to-unpin "No File"))))
     (write-files-to-disk [_]
       (locking bmanager
         (doseq [file (.get ^java.util.HashMap bmanager :files)]
@@ -182,3 +177,18 @@
   [path]
   (pin-file BM path)
   (get-file BM path))
+
+(defn create-path
+  ""
+  [path]
+  (.mkdirs (io/file path)))
+
+(defn delete-file-recursively
+  "Delete file or a directory and everything inside."
+  [file_name]
+  (let [file (clojure.java.io/file file_name)]
+    (if (.isDirectory file)
+      (doseq [child (.listFiles file)]
+        (delete-file-recursively child)))
+    (unpin-file BM file_name)
+    (clojure.java.io/delete-file file)))
