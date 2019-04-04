@@ -18,9 +18,9 @@
     (io/read-from-disk file)
     (is (= (transform/bytes->string (io/get-contents file)) "a|b^c|d@e|f^"))))
 
-(deftest execute-create-relationship-query-test
-  (with-files [["/graph_names" "X\n"] ["/X/rel"]]
-    (def file (io/provide-file (str tmp_dir "/X/rel")))
-    (execute/execute-create-relationship-query "X" "(a)-[:b]->(c)")
+(deftest execute-create-edge-query-test
+  (with-files [["/graph_names" "X\n"] ["/X/edge"]]
+    (def file (io/provide-file (str tmp_dir "/X/edge")))
+    (execute/execute-create-edge-query "X" "(a)-[b]->(c)")
     (io/read-from-disk file)
-    (is (= (transform/bytes->string (io/get-contents file)) "a|-|:b|->|c^"))))
+    (is (= (transform/bytes->string (io/get-contents file)) "a|-|b|->|c^"))))

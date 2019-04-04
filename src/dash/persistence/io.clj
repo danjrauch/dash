@@ -89,7 +89,8 @@
       (append-content [this contents]
         (locking file
           (.addAll (.get ^java.util.HashMap file :contents) (java.util.ArrayList. (vec (map byte contents))))
-          (set-dirty-value this true)))
+          (set-dirty-value this true)
+          contents))
       (concat-append [this args separator]
         (locking file
           (append-content this (str/join separator args))))

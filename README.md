@@ -36,21 +36,36 @@ to restart the container.
 
 ## Usage
 
-# Create
-
-Commands to create new nodes look like this: 
+Begin by creating a graph.
 ```sh
-create (name:type:... {attribute:...})
-```
-Commands to create new relationships look like this:
-```sh
-create (name)- or <-[:connection type]- or ->(name)
+create name
 ```
 
+Find and load a graph into memory.
+```sh
+load graph name
+```
 
+You can create nodes for your graph.
+```sh
+create (name:descriptor:... {attribute name:attribute value ...}) (...)
+```
+
+You can also create undirected and directed edges for your graph.
+```sh
+create (name)-[label]-(name)
+```
+or
+```sh
+create (name)<-[label]-(name)
+```
+or
+```sh
+create (name)-[label]->(name)
+```
 
 License
 ----
-Copyright © 2018 Dan Rauch
+Copyright © 2019 Dan Rauch
 
 Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.

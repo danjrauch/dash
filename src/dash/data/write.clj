@@ -2,6 +2,8 @@
   (:require [environ.core :as environ]
             [clojure.string :as str]
             [dash.persistence.io :as io]
+            [dash.data.graph :as graph]
+            [dash.data.transform :as transform]
             [dash.data.globals :refer :all]))
 
 (defn create-graph
@@ -10,7 +12,7 @@
   (try
     (io/create-path (str data_dir graph_name))
     (io/provide-file (str data_dir graph_name "/node"))
-    (io/provide-file (str data_dir graph_name "/rel"))
+    (io/provide-file (str data_dir graph_name "/edge"))
     (io/provide-file (str data_dir graph_name "/stats"))
     (when (not (contains? @global_graph_set graph_name))
       (def graph_file (io/provide-file (str data_dir "graph_names")))
@@ -23,32 +25,32 @@
 
 (defn create-node
   "Create a node."
-  [graph_name node_map]
+  [graph_name node_string]
   (try
     (def node_file (io/provide-file (str data_dir graph_name "/node")))
-    (io/concat-append node_file (:name_adjs node_map) "|")
-    (when (contains? node_map :prop_pairs)
-      (io/append-content node_file "@")
-      (io/concat-append node_file (:prop_pairs node_map) "|"))
-    (io/append-content node_file "^")
+    (io/append-content node_file (str node_string "^"))
+    (swap! global_graph graph/add-node (transform/string->node node_string))
     (io/write-to-disk node_file)
     (when (not= (environ/env :clj-env) "test") (Thread/sleep 3000)) ; TEST SPINNER
     (catch Exception ex
       (.printStackTrace ex)
       (str "Exception in create-node: " (.getMessage ex)))))
 
-(defn create-relationship
-  "Create a relationship."
-  [graph_name rel]
+(defn create-edge
+  "Create a edge."
+  [graph_name edge_string]
   (try
-    (def rel_file (io/provide-file (str data_dir graph_name "/rel")))
-    (io/concat-append rel_file rel "|")
-    (io/append-content rel_file "^")
-    (io/write-to-disk rel_file)
+    ; (when (not (and (contains? @global_graph (:u (transform/string->edge edge_string)))
+    ;                 (contains? @global_graph (:v (transform/string->edge edge_string)))
+    ;                 (throw (Throwable. "One of the nodes in the relationship are not present the graph.")))))
+    (def edge_file (io/provide-file (str data_dir graph_name "/edge")))
+    (io/append-content edge_file (str edge_string "^"))
+    (swap! global_graph graph/add-edge (transform/string->edge edge_string))
+    (io/write-to-disk edge_file)
     (when (not= (environ/env :clj-env) "test") (Thread/sleep 3000)) ; TEST SPINNER
     (catch Exception ex
       (.printStackTrace ex)
-      (str "Exception in create-relationship: " (.getMessage ex)))))
+      (str "Exception in create-edge: " (.getMessage ex)))))
 
 (defn delete-graph
   "Delete a graph."

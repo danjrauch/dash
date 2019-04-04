@@ -2,26 +2,13 @@
   (:require [clojure.test :refer :all]
             [clojure.java.io :as javaio]
             [dash.query.parse :as parse]
+            [dash.data.transform :as transform]
             [dash.persistence.io :as io]
             [test.util :refer :all]))
 
-(deftest parse-entity-with-properties-test
-  (let [{name_adjs :name_adjs prop_pairs :prop_pairs} (parse/parse-entity-with-properties "(c:d {e:f})")]
-    (is (= name_adjs '("c" "d")))
-    (is (= prop_pairs '("e" "f")))))
+(deftest parse-node-to-string-test
+  (is (= "a|b@c|d" (parse/parse-node-to-string "(a:b {c:d})")))
+  (is (= "a|b|c" (parse/parse-node-to-string "(a:b:c)"))))
 
-(deftest parse-entity-without-properties-test
-  (let [{name_adjs :name_adjs} (parse/parse-entity-without-properties "(a:b)")]
-    (is (= name_adjs '("a" "b")))))
-
-(deftest parse-create-node-block-test
-  (let [{name_adjs :name_adjs} (parse/parse-create-node-block "(a:b)")]
-    (is (= name_adjs '("a" "b"))))
-  (let [{name_adjs :name_adjs prop_pairs :prop_pairs} (parse/parse-create-node-block "(c:d {e:f})")]
-    (is (= name_adjs '("c" "d")))
-    (is (= prop_pairs '("e" "f")))))
-
-(deftest parse-create-relationship-block-test
-  (let [{name_adjs :name_adjs prop_pairs :prop_pairs} (parse/parse-create-node-block "(c:d {e:f})")]
-    (is (= name_adjs '("c" "d")))
-    (is (= prop_pairs '("e" "f")))))
+(deftest parse-edge-to-string-test
+  (is (= "a|-|con|-|b" (parse/parse-edge-to-string "(a)-[con]-(b)"))))

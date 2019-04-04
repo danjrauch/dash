@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 
+## 0.1.0 - 2019-03-01
+### Graph Writing/Reading
+- Ability to insert and read graphs
 ## 0.1.0 - 2018-01-02
 ### Update
 - Thread-safe virtual files

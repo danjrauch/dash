@@ -16,7 +16,7 @@
   [data]
   (reduce bit-or (map-indexed (fn [i x] (bit-shift-left (bit-and x 0x0FF) (* 8 (- (count data) i 1)))) data)))
 
-(defn string->node-map
+(defn string->node
   [data]
   (def node (str/split data #"\@"))
   (def name_and_descriptors (str/split (nth node 0) #"\|"))
@@ -28,8 +28,8 @@
        :attribute_map (zipmap (map keyword (take-nth 2 attributes)) (take-nth 2 (rest attributes)))
        :adjacency_map {}})))
 
-(defn string->rel-map
+(defn string->edge
   [data]
-  (def rel_components (str/split data #"\|"))
-  {:u (nth rel_components 0) :label (nth rel_components 2) :v (nth rel_components 4)
-   :direction (str (nth rel_components 1) (nth rel_components 3))})
+  (def edge_components (str/split data #"\|"))
+  {:u (nth edge_components 0) :label (nth edge_components 2) :v (nth edge_components 4)
+   :direction (str (nth edge_components 1) (nth edge_components 3))})

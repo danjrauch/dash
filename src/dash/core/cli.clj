@@ -4,8 +4,8 @@
   (:gen-class)
   (:use clojure.java.shell))
 
-(def ascii-right 68)
-(def ascii-left 67)
+(def ascii-right 67)
+(def ascii-left 68)
 (def ascii-enter 10)
 (def ascii-escape 27)
 (def ascii-backspace 127)
@@ -31,51 +31,83 @@
   []
   (print "dash=> ") (flush))
 
-;; Removes last character from the string.
-(defmacro remove-last
-  [txt]
-  `(subs ~txt 0 (- (count ~txt) 1)))
+(defn- move-cursor-to-pos
+  [pos cursor_pos]
+  (if (> pos cursor_pos)
+    (dotimes [_ (- pos cursor_pos)]
+      (print (char 27)) (print (char 91)) (print (char ascii-right)) (flush))
+    (dotimes [_ (- cursor_pos pos)]
+      (print (char 27)) (print (char 91)) (print (char ascii-left)) (flush))))
+
+;;; Cleans the command line. Used in up and down arrow actions.
+(defn- ^:dynamic clean-command-line
+  "Cleans up the command line."
+  [buffer cursor_pos]
+  (when (> (count buffer) cursor_pos)
+    (move-cursor-to-pos (count buffer) cursor_pos))
+  (loop [new_pos (count buffer)]
+    (when (> new_pos 0)
+      (prints print "\b \b")
+      (recur (dec new_pos)))))
+
+;; Removes character before the cursor from the string.
+(defn- delete-char
+  [buffer cursor_pos]
+  (str (subs buffer 0 (dec cursor_pos)) (when (< cursor_pos (count buffer)) (subs buffer cursor_pos))))
+
+;; Add character after the cursor from the string.
+(defn- insert-char
+  [buffer cursor_pos c]
+  (cond
+    (= cursor_pos (count buffer)) (str buffer c)
+    :else (str (subs buffer 0 cursor_pos) c (subs buffer cursor_pos))))
+
+(defn- refresh-command-line
+  [buffer new_buffer cursor_pos next_pos]
+  (clean-command-line buffer cursor_pos)
+  (prints print new_buffer)
+  (move-cursor-to-pos next_pos (count new_buffer)))
 
 ;; Handles the backspace key stroke. It deletes the chars,
 ;; if there is, on the left hand side of the cursor.
 (defmacro handle-backspace
   "Macro that handles backspace strokes"
-  [command-buffer vertical-cursor-pos]
-  `(if (not-empty ~command-buffer)
+  [buffer cursor_pos]
+  `(if (and (not-empty ~buffer) (> ~cursor_pos 0))
      (do
-       (prints print "\b \b")
-       (recur (remove-last ~command-buffer) (dec ~vertical-cursor-pos)))
-     (recur ~command-buffer 0)))
+       (refresh-command-line ~buffer (delete-char ~buffer ~cursor_pos) ~cursor_pos (dec ~cursor_pos))
+       (recur (delete-char ~buffer ~cursor_pos) (dec ~cursor_pos)))
+     (recur ~buffer 0)))
 
 ;; Handles left key stroke that moves the cursor to the left,
 ;; if it is not the case, that the cursor is located in
-;; its most link position.
+;; its most left position.
 (defmacro handle-left
   "Macro that handles left arrow key stroke."
-  [command-buffer vertical-cursor-pos]
-  `(if (and (< ~vertical-cursor-pos (count ~command-buffer)))
+  [buffer cursor_pos]
+  `(if (> ~cursor_pos 0)
      (do
        (print (char 27))
        (print (char 91))
-       (print (char 67))
+       (print (char ascii-left))
        (flush)
-       (recur ~command-buffer (inc ~vertical-cursor-pos)))
-     (recur ~command-buffer ~vertical-cursor-pos)))
+       (recur ~buffer (dec ~cursor_pos)))
+     (recur ~buffer ~cursor_pos)))
 
 ;; Handles right key stroke that moves the cursor to the right,
 ;; if it is not the case, that the cursor is located in its
 ;; most right position.
 (defmacro handle-right
   "Macro that handles right arrow key stroke."
-  [command-buffer vertical-cursor-pos]
-  `(if (> ~vertical-cursor-pos 0)
+  [buffer cursor_pos]
+  `(if (< ~cursor_pos (count ~buffer))
      (do
-      (print (char 27))
-      (print (char 91))
-      (print (char 68))
-      (flush)
-      (recur ~command-buffer (dec ~vertical-cursor-pos)))
-    (recur ~command-buffer ~vertical-cursor-pos)))
+       (print (char 27))
+       (print (char 91))
+       (print (char ascii-right))
+       (flush)
+       (recur ~buffer (inc ~cursor_pos)))
+     (recur ~buffer ~cursor_pos)))
 
 (def history-cursor (atom 0))
 
@@ -85,10 +117,10 @@
   "Read-Eval-Print-Loop implementation."
   []
   (print-prompt)
-  (loop [command-buffer nil vertical-cursor-pos 0]
-    (let [input-char (.read System/in)]
+  (loop [buffer nil cursor_pos 0]
+    (let [input_char (.read System/in)]
       (cond
-        (= input-char ascii-escape)
+        (= input_char ascii-escape)
         (do
           ;; by-pass the first char after escape-char.
           (.read System/in)
@@ -96,27 +128,27 @@
             ;; Handle navigation keys, left and right key strokes.
             (cond
               (= escape-char ascii-right)
-              (handle-right command-buffer vertical-cursor-pos)
+              (handle-right buffer cursor_pos)
               (= escape-char ascii-left)
-              (handle-left command-buffer vertical-cursor-pos))))
+              (handle-left buffer cursor_pos))))
         ;; On-enter pressed.
-        (= input-char ascii-enter)
+        (= input_char ascii-enter)
         (do
           (reset! history-cursor 0)
           (print " ")
           (cond
-            (nil? command-buffer) ""
-            (= "" (str/trim command-buffer)) ""
-            (some #{(str/trim command-buffer)} '("quit" "exit")) (do (println) (System/exit 0))
-            :else (input/handle-input (str/trim command-buffer))))
+            (nil? buffer) ""
+            (= "" (str/trim buffer)) ""
+            (some #{(str/trim buffer)} '("quit" "exit")) (do (println) (System/exit 0))
+            :else (input/handle-input (str/trim buffer))))
         ;; On-backspace entered.
-        (= input-char ascii-backspace)
-        (handle-backspace command-buffer vertical-cursor-pos)
+        (= input_char ascii-backspace)
+        (handle-backspace buffer cursor_pos)
         ;; default case
         :else
         (do
-          (prints print (char input-char))
-          (recur (str command-buffer (char input-char)) (inc vertical-cursor-pos)))))))
+          (refresh-command-line buffer (insert-char buffer cursor_pos (char input_char)) cursor_pos (inc cursor_pos))
+          (recur (insert-char buffer cursor_pos (char input_char)) (inc cursor_pos)))))))
 
 (defn addShutdownHook
   "Add a function as shutdown hook on JVM exit."
@@ -142,5 +174,5 @@
   (while true (repl))
   (System/exit 0))
 
-(defn -main [ & args ]
+(defn -main [& args]
   (start-repl))

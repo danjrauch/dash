@@ -1,32 +1,23 @@
 (ns dash.query.parse
   (:require [clojure.string :as str]
-            [dash.persistence.io :refer :all :as io]
+            [dash.persistence.io :as io]
+            [dash.data.transform :as transform]
             [clj-time.core :as t]
             [clj-time.local :as l]))
 
-(defn parse-entity-with-properties
+(defn parse-node-to-string
   ""
   [block]
-  (def subject_prop_split (str/split (subs block 1 (dec (count block))) #"\s{1,}" 2))
-  (def name_adjs (map str/trim (str/split (nth subject_prop_split 0) #"\:")))
-  (def prop_string (subs (nth subject_prop_split 1) 1 (dec (count (nth subject_prop_split 1)))))
-  (def prop_pairs (remove #(re-matches #"\s*" %) (map str/trim (str/split prop_string #"(\s*:\s*|\s*,\s*|\s{1,})"))))
-  {:name_adjs name_adjs :prop_pairs prop_pairs})
+  (def subject_attribute_split (str/split (subs block 1 (dec (count block))) #"\s{1,}"))
+  (def name_adjs (map str/trim (str/split (nth subject_attribute_split 0) #"\:")))
+  (if (= (count subject_attribute_split) 1)
+    (str/join "|" name_adjs)
+    (do
+      (def attribute_string (subs (nth subject_attribute_split 1) 1 (dec (count (nth subject_attribute_split 1)))))
+      (def attribute_pairs (remove empty? (map str/trim (str/split attribute_string #"(\s*:\s*|\s*,\s*|\s{1,})"))))
+      (str (str/join "|" name_adjs) "@" (str/join "|" attribute_pairs)))))
 
-(defn parse-entity-without-properties
+(defn parse-edge-to-string
   ""
   [block]
-  (def name_adjs (map str/trim (str/split (subs block 1 (dec (count block))) #"\:")))
-  {:name_adjs name_adjs})
-
-(defn parse-create-node-block
-  ""
-  [node_block]
-  (if (not-empty (re-find #"\(\s*[A-Za-z0-9:]*?\s*\{.*?\}\s*\)" node_block))
-    (parse-entity-with-properties node_block)
-    (parse-entity-without-properties node_block)))
-
-(defn parse-create-relationship-block
-  ""
-  [relationship_block]
-  (map str/trim (subvec (str/split relationship_block #"\(|\)|\[|\]") 1)))
+  (str/join "|" (remove empty? (str/split block #"\(|\)|\[|\]"))))
