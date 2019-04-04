@@ -9,7 +9,9 @@
                  [environ "1.1.0"]
                  [clj-commons/spinner "0.6.0"]]
   :plugins [[lein-environ "1.1.0"]
-            [lein-binplus "0.6.5"]] ; https://github.com/BrunoBonacci/lein-binplus
+            [lein-binplus "0.6.5"]      ; https://github.com/BrunoBonacci/lein-binplus
+            [lein-annotations "0.1.0"]  ; https://github.com/bbatsov/lein-annotations
+            ]
   :main ^:skip-aot dash.core.cli
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}
