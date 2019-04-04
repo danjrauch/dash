@@ -1,6 +1,6 @@
 FROM clojure
 MAINTAINER Dan Rauch <drauch@hawk.iit.edu>
-WORKDIR /dash
+WORKDIR /mesh
 ENTRYPOINT ["/bin/bash"]
 
 CMD ["lein", "run"]

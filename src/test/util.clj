@@ -1,6 +1,6 @@
 (ns test.util
-  (:require [dash.persistence.io :as io]
-            [dash.data.globals :refer :all]))
+  (:require [mesh.core.persistence.io :as io]
+            [mesh.core.data.globals :refer :all]))
 
 (def tmp_dir "test/test_data")
 

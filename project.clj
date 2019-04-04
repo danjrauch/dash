@@ -1,6 +1,6 @@
-(defproject dash "0.1.0-SNAPSHOT"
+(defproject mesh "0.1.0-SNAPSHOT"
   :description "lightweight graph-based DBMS"
-  :url "https://github.com/danjrauch/dash"
+  :url "https://github.com/danjrauch/mesh"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.10.0"]
@@ -12,7 +12,7 @@
             [lein-binplus "0.6.5"]      ; https://github.com/BrunoBonacci/lein-binplus
             [lein-annotations "0.1.0"]  ; https://github.com/bbatsov/lein-annotations
             ]
-  :main ^:skip-aot dash.core.cli
+  :main ^:skip-aot mesh.core.cli.repl
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}
              :dev        {:env {:clj-env "development"}}
