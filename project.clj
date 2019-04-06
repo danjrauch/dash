@@ -12,7 +12,7 @@
             [lein-binplus "0.6.5"]      ; https://github.com/BrunoBonacci/lein-binplus
             [lein-annotations "0.1.0"]  ; https://github.com/bbatsov/lein-annotations
             ]
-  :main ^:skip-aot mesh.core.cli.repl
+  :main ^:skip-aot mesh.core.repl
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}
              :dev        {:env {:clj-env "development"}}

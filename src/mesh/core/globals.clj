@@ -1,9 +1,8 @@
-(ns mesh.core.data.globals
-  (:require [environ.core :as environ]))
+(in-ns 'mesh.core.repl)
 
 (def global_graph_set (atom #{}))
 (def global_graph_name (atom ""))
-(def global_graph (atom {}))
+(def global_graph (atom {:name "" :nodes {}}))
 
 (def data_dir
   (if (= (environ/env :clj-env) "test")

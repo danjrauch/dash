@@ -6,11 +6,13 @@ A lightweight graph-based database system written with Clojure.
 
 mesh is being developed as a hobby project. It strives to allow for the storage and search of graphs. Development began on December 1 2018. 
 
+# CLI
+
 ## Usage
 
 ### Example
 
-<img align="center" src="https://raw.githubusercontent.com/danjrauch/mesh/master/images/example1">
+<img align="center" src="https://raw.githubusercontent.com/danjrauch/mesh/master/images/example1.png">
 
 ### Insert
 
@@ -56,6 +58,10 @@ You can display nodes on the screen.
 ```sh
 mesh=> show (^name)
 ```
+
+# Persistent Graphs
+
+# In-memory Graphs
 
 ### Docker
 

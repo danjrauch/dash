@@ -1,4 +1,4 @@
-(ns mesh.core.cli.core-test
+(ns mesh.core.core-test
   (:require [clojure.test :refer :all]
             [clojure.java.io :as javaio]
             [test.util :refer :all]))

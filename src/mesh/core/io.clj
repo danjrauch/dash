@@ -1,11 +1,4 @@
-(ns mesh.core.persistence.io
-  (:require [clojure.string :as str]
-            [clojure.core.async :refer [>! <! >!! <!! go chan buffer close! thread alts! alts!! timeout]]
-            [environ.core :as environ]
-            [clj-time.core :as t]
-            [clj-time.local :as l]
-            [clojure.java.io :as io]
-            [mesh.core.data.transform :as transform]))
+(in-ns 'mesh.core.persist)
 
 (defn connect-log
   "I/O logs for file operations."
@@ -21,8 +14,13 @@
             (recur))))
   in))
 
-; (>!! (.get ^java.util.HashMap file :in) (str (transform/standard-datetime) "|DWVF|"
-          ;                      (.get ^java.util.HashMap file :name) "|" (transform/bytes->string (str/join " " args))))
+(defn bytes->string
+  [data]
+  (apply str (map char data)))
+
+(defn bytes->num
+  [data]
+  (reduce bit-or (map-indexed (fn [i x] (bit-shift-left (bit-and x 0x0FF) (* 8 (- (count data) i 1)))) data)))
 
 (defprotocol File
   (get-name [this])
@@ -58,7 +56,7 @@
           (.get ^java.util.HashMap file :name)))
       (get-contents [_]
         (locking file
-          (vec (.get ^java.util.HashMap file :contents))))
+          (bytes->string (vec (.get ^java.util.HashMap file :contents)))))
       (get-r-value [_]
         (locking file
           (.get ^java.util.HashMap file :r)))
@@ -101,15 +99,11 @@
             (.createNewFile (io/file (.get ^java.util.HashMap file :name))))
           (let [f (java.io.File. (.get ^java.util.HashMap file :name))
                 is (java.io.FileOutputStream. f true)]
-            (>!! (.get ^java.util.HashMap file :in) (str (transform/standard-datetime) "|SWAF|"
-                                                         (.get ^java.util.HashMap file :name)))
             (.write is (byte-array (.subList (.get ^java.util.HashMap file :contents)
                                              (.get ^java.util.HashMap file :pivot)
                                              (.size (.get ^java.util.HashMap file :contents)))))
             (.put ^java.util.HashMap file :pivot (.size (.get ^java.util.HashMap file :contents)))
-            (.close is)
-            (>!! (.get ^java.util.HashMap file :in) (str (transform/standard-datetime) "|DWAF|"
-                                                         (.get ^java.util.HashMap file :name)))))))))
+            (.close is)))))))
 
 (defn initialize-buffer-file-array
   [size]

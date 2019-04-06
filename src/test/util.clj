@@ -1,10 +1,10 @@
 (ns test.util
-  (:require [mesh.core.persistence.io :as io]
-            [mesh.core.data.globals :refer :all]))
+  (:require [mesh.core.persist :as persist]
+            [mesh.core.repl :as repl]))
 
-(def tmp_dir "test/test_data")
+(def tmp_dir "test/test_data/")
 
-(def public_dir "test_data")
+(def public_dir "test_data/")
 
 (def ^:dynamic *last-modified*)
 
@@ -24,8 +24,8 @@
 
 (defn clear-side-effects
   []
-  (io/clear-files io/BM)
-  (reset! global_graph {}))
+  (persist/clear-files persist/BM)
+  (reset! repl/global_graph {:name "" :nodes {}}))
 
 (defmacro with-tmp-dir
   [& body]

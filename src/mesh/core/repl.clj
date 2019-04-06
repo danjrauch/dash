@@ -1,9 +1,20 @@
-(ns mesh.core.cli.repl
+(ns mesh.core.repl
   (:require [clojure.string :as str]
             [environ.core :as environ]
-            [mesh.core.cli.result :as result])
+            [clj-time.core :as t]
+            [clj-time.local :as l]
+            [clojure.pprint :as pprint]
+            [spinner.core :as spin]
+            [mesh.core.graph :as graph]
+            [mesh.core.persist :as persist])
   (:gen-class)
   (:use clojure.java.shell))
+
+(load "regex")
+(load "globals")
+(load "parse")
+(load "execute")
+(load "result")
 
 (def ascii_up 65)
 (def ascii_down 66)
@@ -180,7 +191,7 @@
             ; (nil? buffer) ""
             (str/blank? buffer) (do (println) "")
             (some #{(str/trim buffer)} '("quit" "exit")) (do (println) (System/exit 0))
-            :else (result/handle-input (str/trim buffer))))
+            :else (handle-input (str/trim buffer))))
         ;; On-backspace entered.
         (= input_char ascii_backspace)
         (handle-backspace buffer cursor_pos)
@@ -209,8 +220,8 @@
 (defn start-repl
   "Starts the repl session"
   []
-  ; (prints print _G (clojure.string/replace (slurp "resources/branding") #"VERSION" (:mesh-version environ/env)) _B) ;; TODO allow for color changes
-  (prints print (clojure.string/replace (slurp "resources/branding") #"VERSION" (:mesh-version environ/env))) ;; TODO allow branding file changes and don't hardcode the relative path
+  ; (prints print _G (clojure.string/replace (slurp "resources/branding") #"VERSION" (:mesh-version environ/env)) _B)
+  (prints print (clojure.string/replace (slurp "resources/branding") #"VERSION" (:mesh-version environ/env)))
   (addShutdownHook (fn [] (turn-char-buffering-off)))
   (turn-char-buffering-on)
   (while true (repl))
@@ -218,3 +229,5 @@
 
 (defn -main [& args]
   (start-repl))
+
+;; enhancement from TARS cli library
