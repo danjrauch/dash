@@ -1,12 +1,16 @@
-# <img align="right" src="https://raw.githubusercontent.com/danjrauch/mesh/master/images/mesh.gif"> mesh [![Build Status](https://travis-ci.org/danjrauch/mesh.svg?branch=master)](https://travis-ci.org/danjrauch/mesh)
+mesh [![Build Status](https://travis-ci.org/danjrauch/mesh.svg?branch=master)](https://travis-ci.org/danjrauch/mesh)
 
-A lightweight graph-based database system written with Clojure.
+A graph processing library for Clojure.
 
 ## Description
 
-mesh is being developed as a hobby project. It strives to allow for the storage and search of graphs. Development began on December 1 2018. 
+mesh is being developed as a hobby project. Its three namespaces offer several ways to process graph data. Development began on December 1 2018. 
+
+[Rationale and Design Document](https://docs.google.com/document/d/1tJ0OM2-mhQ-G6V91LOSVeitK9jRDkzplbb81cemqD9c/edit?usp=sharing)
 
 # CLI
+
+mesh 
 
 ## Usage
 
@@ -21,22 +25,22 @@ Begin by creating a graph.
 mesh=> create ^name
 ```
 
-You can create nodes for your graph.
+Create nodes for your graph.
 ```sh
 mesh=> create (^name:^descriptor:... {^attribute-name:^attribute-value ...}) (...)
 ```
 
-You can also create undirected and directed edges for your graph.
+Create undirected and directed edges for your graph.
 ```sh
 mesh=> create (^name)-[^label]-(^name)
 ```
 or
 ```sh
-mesh=> create (^name)<-[^label]-(^name)
+mesh=> create (^name)<[^label]-(^name)
 ```
 or
 ```sh
-mesh=> create (^name)-[^label]->(^name)
+mesh=> create (^name)-[^label]>(^name)
 ```
 depending on if you want an undirected or directed edge.
 
@@ -49,17 +53,26 @@ mesh=> load ^name
 
 ### Display 
 
-You can list the graphs in the database.
+List the graphs in the database.
 ```sh
 mesh=> list
 ```
 
-You can display nodes on the screen.
+Display nodes on the screen.
 ```sh
 mesh=> show (^name)
 ```
 
+### Save
+
+Save your current graph to the graph.fress file.
+```sh
+mesh=> save
+```
+
 # Persistent Graphs
+
+
 
 # In-memory Graphs
 
@@ -78,6 +91,6 @@ to restart the container.
 
 License
 ----
-Copyright © 2019 Dan Rauch
+Copyright © 2018-2019 Dan Rauch
 
 Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.

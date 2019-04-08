@@ -2,8 +2,10 @@
 
 ## [Unreleased]
 
+## 0.1.0 - 2019-04-07
+- Graph persistence done with Fressian serialization
 ## 0.1.0 - 2019-04-06
-### Trifercation into core.graph, core.persist, core.repl namespaces
+- Trifercation into core.graph, core.persist, core.repl namespaces
 ## 0.1.0 - 2019-03-01
 ### Graph Writing/Reading
 - Ability to insert and read graphs

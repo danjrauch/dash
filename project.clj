@@ -5,6 +5,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/core.async "0.4.490"]
+                 [org.clojure/data.fressian "0.2.1"]
+                 [org.fressian/fressian "0.6.2"]
                  [clj-time "0.15.0"]
                  [environ "1.1.0"]
                  [clj-commons/spinner "0.6.0"]]

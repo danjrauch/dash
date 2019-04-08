@@ -52,7 +52,9 @@
 (defn- print-prompt
   "Prints the command prompt."
   []
-  (print "mesh=> ") (flush))
+  (print (if (not (= @global_graph_name ""))
+           (str @global_graph_name "=> ")
+           "mesh=> ")) (flush))
 
 (defn- move-cursor-to-pos
   "Move the cursor to the specified position on the screen."
@@ -63,7 +65,7 @@
     (dotimes [_ (- cursor_pos pos)]
       (print (char ascii_escape)) (print (char ascii_left_bracket)) (print (char ascii_left)) (flush))))
 
-(defn- ^:dynamic clean-command-line
+(defn- clean-command-line
   "Cleans the command line."
   [buffer cursor_pos]
   (when (> (count buffer) cursor_pos)

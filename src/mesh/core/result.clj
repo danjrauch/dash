@@ -3,7 +3,7 @@
 (defn handle-input
   ""
   [raw_query_string]
-  (when (empty? @global_graph_set) 
+  (when (empty? @global_graph_set)
     (reset! global_graph_set (persist/read-graph-names data_dir)))
   (cond
     (not-empty (re-matches list_graphs_re raw_query_string))
@@ -12,6 +12,10 @@
       (println)
       (doseq [graph_name @global_graph_set]
         (print (str graph_name " "))))
+    (not-empty (re-matches save_graph_re raw_query_string))
+    (do
+      (print " ")
+      (persist/write-graph @global_graph data_dir))
     (not-empty (re-matches load_graph_re raw_query_string))
     (if (contains? @global_graph_set (nth (str/split (re-matches load_graph_re raw_query_string) #"\s{1,}") 1))
       (do
@@ -20,9 +24,11 @@
         (reset! global_graph (persist/read-graph @global_graph_name data_dir)))
       (print " Graph not found."))
     (not-empty (re-matches create_graph_re raw_query_string))
-    (do
-      (print " ")
-      (execute-create-graph-query (subs raw_query_string 6)))
+    (if (not (contains? @global_graph_set (nth (str/split (re-find create_graph_re raw_query_string) #"\s{1,}") 1)))
+      (do
+        (print " ")
+        (execute-create-graph-query (subs raw_query_string 6)))
+      (print " Graph already created."))
     (not-empty (re-matches delete_graph_re raw_query_string))
     (if (contains? @global_graph_set (nth (str/split (re-find delete_graph_re raw_query_string) #"\s{1,}") 1))
       (do
