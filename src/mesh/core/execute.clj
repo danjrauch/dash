@@ -2,6 +2,7 @@
 
 (defn execute-create-graph-query
   "Create each graph in the query."
+  {:added "0.1.0"}
   [raw_graph_query]
   (doseq [graph_name (re-seq #"[A-Za-z0-9\_\-\.]{1,}" raw_graph_query)]
     (persist/create-graph graph_name data_dir)
@@ -13,6 +14,7 @@
 
 (defn execute-delete-graph-query
   "Delete each graph in the query."
+  {:added "0.1.0"}
   [raw_graph_query]
   (doseq [graph_name (re-seq #"[A-Za-z0-9\_\-\.]{1,}" raw_graph_query)]
     (persist/delete-graph graph_name data_dir)
@@ -25,18 +27,21 @@
 
 (defn execute-create-node-query
   "Create each node in the query."
+  {:added "0.1.0"}
   [graph_name raw_node_query]
   (doseq [block (re-seq #"\(\s*[A-Za-z0-9\_\-\.:]*?\s*(?:\{.*?\}){0,1}\s*\)" raw_node_query)]
     (swap! global_graph graph/add-node (graph/string->node (parse-node-to-string block)))))
 
 (defn execute-create-edge-query
   "Create each edge in the query."
+  {:added "0.1.0"}
   [graph_name raw_edge_query]
   (doseq [block (re-seq #"\([A-Za-z0-9\_\-\.]{1,}\)(?:-|<)\[[A-Za-z0-9\_\-\.]{1,}\](?:-|>)\([A-Za-z0-9\_\-\.]{1,}\)" raw_edge_query)]
     (swap! global_graph graph/add-edge (graph/string->edge (parse-edge-to-string block)))))
 
 (defn execute-show-node-query
   "Find and return a node in the graph."
+  {:added "0.1.0"}
   [raw_node_query]
   (for [block (re-seq #"\(\s*[A-Za-z0-9\_\-\.]{1,}\s*\)" raw_node_query)
         :let [node (graph/return-node @global_graph (str/trim (subs block 1 (dec (count block)))))]

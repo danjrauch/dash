@@ -2,10 +2,12 @@
 
 (defn standard-datetime
   "Get the current datetime in UTC"
+  {:added "0.1.0"}
   []
   (t/to-time-zone (l/local-now) t/utc))
 
 (defn string->node
+  {:added "0.1.0"}
   [data]
   (def node (str/split data #"\@"))
   (def name_and_descriptors (str/split (nth node 0) #"\|"))
@@ -18,6 +20,7 @@
        :adjacency_map {}})))
 
 (defn string->edge
+  {:added "0.1.0"}
   [data]
   (def edge_components (str/split data #"\|"))
   {:u (nth edge_components 0) :label (nth edge_components 2) :v (nth edge_components 4)

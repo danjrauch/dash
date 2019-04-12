@@ -2,6 +2,7 @@
 
 (defn connect-log
   "I/O logs for file operations."
+  {:added "0.1.0"}
   []
   (let [in (chan)]
     (go (loop []
@@ -10,15 +11,17 @@
                 ci (System/getenv "CONTINUOUS_INTEGRATION")]
             (case env
               "test"   (if-not ci (spit "data/test_log" (str op "\n") :append true))
-                       (spit "data/log" (str op "\n") :append true))
+              (spit "data/log" (str op "\n") :append true))
             (recur))))
-  in))
+    in))
 
 (defn bytes->string
+  {:added "0.1.0"}
   [data]
   (apply str (map char data)))
 
 (defn bytes->num
+  {:added "0.1.0"}
   [data]
   (reduce bit-or (map-indexed (fn [i x] (bit-shift-left (bit-and x 0x0FF) (* 8 (- (count data) i 1)))) data)))
 
@@ -47,6 +50,7 @@
 
 (defn create-file
   "Create a new File structure"
+  {:added "0.1.0"}
   [name]
   (let [file (atom {:name name :contents (byte-array 0)
                     :dirty false :r 0 :pivot 0 :in (connect-log)})]
@@ -94,80 +98,85 @@
           (.close is))))))
 
 (defn initialize-buffer-file-array
+  {:added "0.1.0"}
   [size]
   (let [files (java.util.ArrayList.)]
     (doseq [_ (range size)] (.add files (create-file "No File"))) files))
 
 (defn create-buffer-manager
   "Create a new buffer manager"
+  {:added "0.1.0"}
   [size]
   (let [bmanager (java.util.HashMap. {:files (initialize-buffer-file-array size) :hand 0})]
-  (reify
-    BManager
-    (get-file-position [_ name]
-      (first (keep-indexed #(if (= name (get-name %2)) %1) (.get ^java.util.HashMap bmanager :files))))
-    (get-file [_ name]
-      (first (filter #(= name (get-name %)) (.get ^java.util.HashMap bmanager :files))))
-    (get-files [_]
-      (vec (.get ^java.util.HashMap bmanager :files)))
-    (clear-files [_]
-      (locking bmanager
-        (doseq [file (.get ^java.util.HashMap bmanager :files)]
-          (when (= (get-dirty-value file) true)
-            (write-to-disk file)
-            (set-dirty-value file false))
-          (set-name file "No File"))))
-    (pin-file [this name]
-      (locking bmanager
-        (def file-to-pin (get-file this name))
-        (when (not (nil? file-to-pin))
-          (set-r-value file-to-pin 1))
-        (when (nil? file-to-pin)
-          (loop [file (.get (.get ^java.util.HashMap bmanager :files) (.get ^java.util.HashMap bmanager :hand))]
-            (case (get-r-value file)
-                  0 (do
-                      (when (= (get-dirty-value file) true)
-                        (write-to-disk file)
-                        (set-dirty-value file false))
-                      (set-name file name)
-                      (read-from-disk file)
-                      (set-r-value file 1)
-                      (.put ^java.util.HashMap bmanager :hand (mod (inc (.get ^java.util.HashMap bmanager :hand)) size)))
-                  1 (do
-                      (set-r-value file 0)
-                      (.put ^java.util.HashMap bmanager :hand (mod (inc (.get ^java.util.HashMap bmanager :hand)) size))
-                      (recur (.get (.get ^java.util.HashMap bmanager :files) (.get ^java.util.HashMap bmanager :hand)))))))))
-    (unpin-file [this name]
-      (locking bmanager
-        (def file-to-unpin (get-file this name))
-        (when (not (nil? file-to-unpin))
-          (when (= (get-dirty-value file-to-unpin) true)
-            (write-to-disk file-to-unpin)
-            (set-dirty-value file-to-unpin false))
-          (set-r-value file-to-unpin 0)
-          (set-name file-to-unpin "No File"))))
-    (write-files-to-disk [_]
-      (locking bmanager
-        (doseq [file (.get ^java.util.HashMap bmanager :files)]
-          (when (= (get-dirty-value file) true)
-            (write-to-disk file)
-            (set-dirty-value file false))))))))
+    (reify
+      BManager
+      (get-file-position [_ name]
+        (first (keep-indexed #(if (= name (get-name %2)) %1) (.get ^java.util.HashMap bmanager :files))))
+      (get-file [_ name]
+        (first (filter #(= name (get-name %)) (.get ^java.util.HashMap bmanager :files))))
+      (get-files [_]
+        (vec (.get ^java.util.HashMap bmanager :files)))
+      (clear-files [_]
+        (locking bmanager
+          (doseq [file (.get ^java.util.HashMap bmanager :files)]
+            (when (= (get-dirty-value file) true)
+              (write-to-disk file)
+              (set-dirty-value file false))
+            (set-name file "No File"))))
+      (pin-file [this name]
+        (locking bmanager
+          (def file-to-pin (get-file this name))
+          (when (not (nil? file-to-pin))
+            (set-r-value file-to-pin 1))
+          (when (nil? file-to-pin)
+            (loop [file (.get (.get ^java.util.HashMap bmanager :files) (.get ^java.util.HashMap bmanager :hand))]
+              (case (get-r-value file)
+                0 (do
+                    (when (= (get-dirty-value file) true)
+                      (write-to-disk file)
+                      (set-dirty-value file false))
+                    (set-name file name)
+                    (read-from-disk file)
+                    (set-r-value file 1)
+                    (.put ^java.util.HashMap bmanager :hand (mod (inc (.get ^java.util.HashMap bmanager :hand)) size)))
+                1 (do
+                    (set-r-value file 0)
+                    (.put ^java.util.HashMap bmanager :hand (mod (inc (.get ^java.util.HashMap bmanager :hand)) size))
+                    (recur (.get (.get ^java.util.HashMap bmanager :files) (.get ^java.util.HashMap bmanager :hand)))))))))
+      (unpin-file [this name]
+        (locking bmanager
+          (def file-to-unpin (get-file this name))
+          (when (not (nil? file-to-unpin))
+            (when (= (get-dirty-value file-to-unpin) true)
+              (write-to-disk file-to-unpin)
+              (set-dirty-value file-to-unpin false))
+            (set-r-value file-to-unpin 0)
+            (set-name file-to-unpin "No File"))))
+      (write-files-to-disk [_]
+        (locking bmanager
+          (doseq [file (.get ^java.util.HashMap bmanager :files)]
+            (when (= (get-dirty-value file) true)
+              (write-to-disk file)
+              (set-dirty-value file false))))))))
 
 (def BM (create-buffer-manager 10))
 
 (defn provide-file
   ""
+  {:added "0.1.0"}
   [path]
   (pin-file BM path)
   (get-file BM path))
 
 (defn create-path
   ""
+  {:added "0.1.0"}
   [path]
   (.mkdirs (io/file path)))
 
 (defn delete-file-recursively
   "Delete file or a directory and everything inside."
+  {:added "0.1.0"}
   [file_name]
   (let [file (clojure.java.io/file file_name)]
     (if (.isDirectory file)
@@ -183,6 +192,7 @@
    will also be written. The optional `write-fn` will be used to write the object if given. If 
    not given, the default is Writer.writeList().
    `read-with-meta` (below) will associated this metadata back with the object when reading."
+  {:added "0.1.0"}
   ([w tag o]
    (write-with-meta w tag o (fn [^Writer w o] (.writeList w o))))
   ([^Writer w tag o write-fn]
@@ -195,6 +205,7 @@
          (.writeNull w))))))
 
 (defn- read-meta [^Reader rdr]
+  {:added "0.1.0"}
   (some->> rdr
            .readObject
            (into {})))
@@ -204,6 +215,7 @@
    was written with metadata the metadata will be associated on the object returned. The `build-fn`
    is called on the read object and is used to do any additional construnction necessary for 
    data structure."
+  {:added "0.1.0"}
   [^Reader rdr build-fn]
   (let [o (build-fn (.readObject rdr))
         m (read-meta rdr)]
@@ -212,6 +224,7 @@
 
 (defn write-map
   "Writes a map as Fressian with the tag 'map' and all keys cached."
+  {:added "0.1.0"}
   [^Writer w m]
   (.writeTag w "map" 1)
   (.beginClosedList ^StreamingWriter w)
@@ -233,6 +246,7 @@
    * If the sorted collection has the clojure.lang.RT/DEFAULT_COMPARATOR, returns nil.
    * If neither of the above are true, an exception is thrown indicating that there is no way to provide a useful
      name for this sorted collection, so it won't be able to be serialized."
+  {:added "0.1.0"}
   [^clojure.lang.Sorted s]
   (let [cname (-> s meta :fressian.custom/comparator-name)]
 
@@ -248,6 +262,7 @@
 
 (defn seq->sorted-set
   "Helper to create a sorted set from a seq given an optional comparator."
+  {:added "0.1.0"}
   [s ^java.util.Comparator c]
   (if c
     (clojure.lang.PersistentTreeSet/create c (seq s))
@@ -255,6 +270,7 @@
 
 (defn seq->sorted-map
   "Helper to create a sorted map from a seq given an optional comparator."
+  {:added "0.1.0"}
   [s ^java.util.Comparator c]
   (if c
     (clojure.lang.PersistentTreeMap/create c ^clojure.lang.ISeq (sequence cat s))

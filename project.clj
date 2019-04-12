@@ -1,5 +1,5 @@
 (defproject mesh "0.1.0-SNAPSHOT"
-  :description "lightweight graph-based DBMS"
+  :description "Graph processing library and database"
   :url "https://github.com/danjrauch/mesh"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -19,4 +19,8 @@
   :profiles {:uberjar {:aot :all}
              :dev        {:env {:clj-env "development"}}
              :test       {:env {:clj-env "test"}}
-             :production {:env {:clj-env "production"}}})
+             :production {:env {:clj-env "production"}}}
+  :bin {:name "mesh"
+        :bin-path "~/usr/local/bin"
+        :bootclasspath false
+        :jvm-opts ["-Dmesh.version=0.1.0"]})

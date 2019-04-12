@@ -2,6 +2,7 @@
 
 (defn handle-input
   ""
+  {:added "0.1.0"}
   [raw_query_string]
   (when (empty? @global_graph_set)
     (reset! global_graph_set (persist/read-graph-names data_dir)))

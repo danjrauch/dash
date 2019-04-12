@@ -51,6 +51,7 @@
 
 (defn- print-prompt
   "Prints the command prompt."
+  {:added "0.1.0"}
   []
   (print (if (not (= @global_graph_name ""))
            (str @global_graph_name "=> ")
@@ -58,6 +59,7 @@
 
 (defn- move-cursor-to-pos
   "Move the cursor to the specified position on the screen."
+  {:added "0.1.0"}
   [pos cursor_pos]
   (if (> pos cursor_pos)
     (dotimes [_ (- pos cursor_pos)]
@@ -67,6 +69,7 @@
 
 (defn- clean-command-line
   "Cleans the command line."
+  {:added "0.1.0"}
   [buffer cursor_pos]
   (when (> (count buffer) cursor_pos)
     (move-cursor-to-pos (count buffer) cursor_pos))
@@ -77,11 +80,13 @@
 
 (defn- delete-char
   "Removes character before the cursor from the string."
+  {:added "0.1.0"}
   [buffer cursor_pos]
   (str (subs buffer 0 (dec cursor_pos)) (when (< cursor_pos (count buffer)) (subs buffer cursor_pos))))
 
 (defn- insert-char
   "Add character after the cursor from the string."
+  {:added "0.1.0"}
   [buffer cursor_pos c]
   (cond
     (= cursor_pos (count buffer)) (str buffer c)
@@ -89,6 +94,7 @@
 
 (defn- refresh-command-line
   "Erase current buffer string, print new buffer string, move cursor to correct position."
+  {:added "0.1.0"}
   [buffer new_buffer cursor_pos next_pos]
   (clean-command-line buffer cursor_pos)
   (prints print new_buffer)
@@ -96,6 +102,7 @@
 
 (defmacro handle-backspace
   "Handles the backspace key stroke. It deletes the chars on the left hand side of the cursor."
+  {:added "0.1.0"}
   [buffer cursor_pos]
   `(if (and (not-empty ~buffer) (> ~cursor_pos 0))
      (do
@@ -105,6 +112,7 @@
 
 (defmacro handle-left
   "Handles left key stroke that moves the cursor to the left if possible."
+  {:added "0.1.0"}
   [buffer cursor_pos]
   `(if (> ~cursor_pos 0)
      (do
@@ -117,6 +125,7 @@
 
 (defmacro handle-right
   "Handles right key stroke that moves the cursor to the right if possible."
+  {:added "0.1.0"}
   [buffer cursor_pos]
   `(if (< ~cursor_pos (count ~buffer))
      (do
@@ -137,6 +146,7 @@
 
 (defmacro handle-down
   "Handles down key stroke that moves the history_cursor through the command history."
+  {:added "0.1.0"}
   [buffer cursor_pos]
   `(if (>= (dec @history_cursor) 0)
      (do
@@ -151,6 +161,7 @@
 
 (defmacro handle-up
   "Handles up key stroke that moves the history_cursor through the command history."
+  {:added "0.1.0"}
   [buffer cursor_pos]
   `(if (< (inc @history_cursor) (count @command_history))
      (do
@@ -163,6 +174,7 @@
 
 (defn repl
   "Read-Eval-Print-Loop implementation."
+  {:added "0.1.0"}
   []
   (print-prompt)
   (loop [buffer "" cursor_pos 0]
@@ -205,22 +217,26 @@
 
 (defn addShutdownHook
   "Add a function as shutdown hook on JVM exit."
+  {:added "0.1.0"}
   [func]
   (.addShutdownHook (Runtime/getRuntime) (Thread. func)))
 
 (defn turn-char-buffering-on
+  {:added "0.1.0"}
   []
   (sh "sh" "-c" "stty -g < /dev/tty")
   (sh "sh" "-c" "stty -icanon min 1 < /dev/tty")
   (sh "sh" "-c" "stty -echo </dev/tty"))
 
 (defn turn-char-buffering-off
+  {:added "0.1.0"}
   []
   (flush)
   (sh "sh" "-c" "stty echo </dev/tty"))
 
 (defn start-repl
   "Starts the repl session"
+  {:added "0.1.0"}
   []
   ; (prints print _G (clojure.string/replace (slurp "resources/branding") #"VERSION" (:mesh-version environ/env)) _B)
   (prints print (clojure.string/replace (slurp "resources/branding") #"VERSION" (:mesh-version environ/env)))
@@ -229,7 +245,9 @@
   (while true (repl))
   (System/exit 0))
 
-(defn -main [& args]
+(defn -main
+  {:added "0.1.0"}
+  [& args]
   (start-repl))
 
 ;; enhancement from TARS cli library

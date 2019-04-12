@@ -1,4 +1,4 @@
-mesh [![Build Status](https://travis-ci.org/danjrauch/mesh.svg?branch=master)](https://travis-ci.org/danjrauch/mesh)
+# mesh [![Build Status](https://travis-ci.org/danjrauch/mesh.svg?branch=master)](https://travis-ci.org/danjrauch/mesh)
 
 A graph processing library for Clojure.
 

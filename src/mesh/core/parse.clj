@@ -7,6 +7,7 @@
 
 (defn parse-node-to-string
   ""
+  {:added "0.1.0"}
   [block]
   (def subject_attribute_split (str/split (subs block 1 (dec (count block))) #"\s{1,}"))
   (def name_adjs (map str/trim (str/split (nth subject_attribute_split 0) #"\:")))
@@ -19,5 +20,6 @@
 
 (defn parse-edge-to-string
   ""
+  {:added "0.1.0"}
   [block]
   (str/join "|" (remove empty? (str/split block #"\(|\)|\[|\]"))))

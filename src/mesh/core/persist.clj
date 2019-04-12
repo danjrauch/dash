@@ -15,6 +15,7 @@
 
 (defn create-graph
   "Create a graph on disk."
+  {:added "0.1.0"}
   [graph_name data_dir]
   (create-path (str data_dir graph_name))
   (provide-file (str data_dir graph_name "/graph.fress"))
@@ -24,11 +25,13 @@
 
 (defn delete-graph
   "Delete a graph on disk."
+  {:added "0.1.0"}
   [graph_name data_dir]
   (delete-file-recursively (str data_dir graph_name)))
 
 (defn read-graph
   "Reads a graph from a file."
+  {:added "0.1.0"}
   [graph_name data_dir]
   (def graph_file (provide-file (str data_dir graph_name "/graph.fress")))
   (if (> (count (get-contents graph_file)) 0)
@@ -37,6 +40,7 @@
 
 (defn write-graph
   "Writes a graph to a file."
+  {:added "0.1.0"}
   [graph data_dir]
   (def graph_file (provide-file (str data_dir (:name graph) "/graph.fress")))
   (set-contents graph_file (.array (fress/write graph :handlers write-handler-lookup)))
@@ -44,6 +48,7 @@
 
 (defn read-graph-names
   "Read a graph_names file."
+  {:added "0.1.0"}
   [data_dir]
   (def graph_name_file (provide-file (str data_dir "graph_names")))
   (def graph_name_file_contents (bytes->string (get-contents graph_name_file)))
