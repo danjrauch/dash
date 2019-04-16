@@ -15,12 +15,24 @@
   "Add a edge to a graph."
   {:added "0.1.0"}
   [graph edge]
-  (reduce #(update-in %1 [:nodes (keyword (nth %2 0)) :adjacency_map (keyword (nth %2 1))] (fnil conj #{(:label edge)}) (:label edge))
-          graph
-          (case (:direction edge)
-            "--" [[(:u edge) (:v edge)] [(:v edge) (:u edge)]]
-            "<-" [[(:v edge) (:u edge)]]
-            "->" [[(:u edge) (:v edge)]])))
+  (let [value_map (cond
+                    (and (contains? edge :label) (contains? edge :w))
+                    {:label (:label edge) :w (:w edge)}
+                    (contains? edge :label)
+                    {:label (:label edge)}
+                    (contains? edge :w)
+                    {:w (:w edge)})]
+    (update-in
+     (reduce #(update-in %1 [:nodes (keyword (nth %2 0)) :adjacency_map (keyword (nth %2 1))]
+                         (fnil conj #{value_map}) value_map)
+             graph
+             (case (:direction edge)
+               "--" [[(:u edge) (:v edge)] [(:v edge) (:u edge)]]
+               "<-" [[(:v edge) (:u edge)]]
+               "->" [[(:u edge) (:v edge)]]))
+     [:edges]
+     conj
+     edge)))
 
 (defn return-node
   "Return a node if it exists in the graph."
@@ -74,17 +86,24 @@
 ;                             :adjacency_map {}}}}
 ;      "a" "c")
 
+; (def graph {:name "g" :nodes {:a {:name "a" :adjacency_map {:b #{{:label "foo" :w 5}}}}
+;                               :b {:name "b" :adjacency_map {:a #{{:label "foo" :w 5}}}}
+;                               :c {:name "c" :adjacency_map {:a #{{:label "bar" :w 8} {:label "baz" :w 7}}}}}})
+
+(defn bellman-ford
+  "Bellman-Ford SSSP."
+  [graph s_name t_name]
+  
+  )
+
 (comment
   Structure of a graph
-  {:name "g" :nodes {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{"foo"}}}
+  {:name "g" :nodes {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{{:label "foo" :w 5}}}}
                      :h {:name "h" :descriptor_set #{"i"} :attribute_map {:j "k"} :adjacency_map {}}
-                     :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{"bar" "baz"}}}}}
+                     :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{{:label "bar"} {:label "baz"}}}}}}
 
   Structure of an edge
-  {:u "a" :label "foo" :v "b"
-   :direction "--"}
+  {:u "a" :label "foo" :w 5 :v "b" :direction "--"}
 
   Structure of a node
-  {:name "a" :descriptor_set #{"b"}
-   :attribute_map {:c "d"}
-   :adjacency_map {}})
+  {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {}})

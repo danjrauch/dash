@@ -23,5 +23,11 @@
   {:added "0.1.0"}
   [data]
   (def edge_components (str/split data #"\|"))
-  {:u (nth edge_components 0) :label (nth edge_components 2) :v (nth edge_components 4)
-   :direction (str (nth edge_components 1) (nth edge_components 3))})
+  (merge {:u (nth edge_components 0) :v (nth edge_components 4)
+          :direction (str (nth edge_components 1) (nth edge_components 3))}
+         (if (= (count (str/split (nth edge_components 2) #":")) 2)
+           {:label (str (clojure.edn/read-string (nth (str/split (nth edge_components 2) #":") 0)))
+            :w (clojure.edn/read-string (nth (str/split (nth edge_components 2) #":") 1))}
+           (if (= (type (clojure.edn/read-string (nth edge_components 2))) clojure.lang.Symbol)
+             {:label (str (clojure.edn/read-string (nth edge_components 2)))}
+             {:w (clojure.edn/read-string (nth edge_components 2))}))))

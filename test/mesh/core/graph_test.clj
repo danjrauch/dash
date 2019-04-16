@@ -19,10 +19,27 @@
   (is (= (:nodes (graph/add-node {:name "X" :nodes {}} (graph/string->node "a|b@c|d"))) {:a {:name "a" :descriptor_set #{"b"} :adjacency_map {}
                                                                                              :attribute_map {:c "d"}}})))
 
-(deftest add-node-test
-  (is (= (:nodes (graph/add-edge {:name "X" :nodes {:a {:name "a" :adjacency_map {}} :w {:name "w" :adjacency_map {}}}}
-                                 (graph/string->edge "a|-|foo|-|w")))
-         {:a {:name "a" :adjacency_map {:w #{"foo"}}} :w {:name "w" :adjacency_map {:a #{"foo"}}}})))
+(deftest add-edge-test
+  (is (= (graph/add-edge {:name "X" :nodes {:a {:name "a" :adjacency_map {}} :w {:name "w" :adjacency_map {}}} :edges #{}}
+                                 (graph/string->edge "a|-|foo|-|w"))
+         {:name "X" :nodes {:a {:name "a" :adjacency_map {:w #{{:label "foo"}}}} :w {:name "w" :adjacency_map {:a #{{:label "foo"}}}}}
+          :edges #{(graph/string->edge "a|-|foo|-|w")}}))
+  (is (= (graph/add-edge {:name "X" :nodes {:a {:name "a" :adjacency_map {}} :w {:name "w" :adjacency_map {}}} :edges #{}}
+                                 (graph/string->edge "a|-|5|-|w"))
+         {:name "X" :nodes {:a {:name "a" :adjacency_map {:w #{{:w 5}}}} :w {:name "w" :adjacency_map {:a #{{:w 5}}}}}
+          :edges #{(graph/string->edge "a|-|5|-|w")}}))
+  (is (= (graph/add-edge {:name "X" :nodes {:a {:name "a" :adjacency_map {}} :w {:name "w" :adjacency_map {}}} :edges #{}}
+                                 (graph/string->edge "a|-|5.5|-|w"))
+         {:name "X" :nodes {:a {:name "a" :adjacency_map {:w #{{:w 5.5}}}} :w {:name "w" :adjacency_map {:a #{{:w 5.5}}}}}
+          :edges #{(graph/string->edge "a|-|5.5|-|w")}}))
+  (is (= (graph/add-edge {:name "X" :nodes {:a {:name "a" :adjacency_map {}} :w {:name "w" :adjacency_map {}}} :edges #{}}
+                                 (graph/string->edge "a|-|5/5|-|w"))
+         {:name "X" :nodes {:a {:name "a" :adjacency_map {:w #{{:w 5/5}}}} :w {:name "w" :adjacency_map {:a #{{:w 5/5}}}}}
+          :edges #{(graph/string->edge "a|-|5/5|-|w")}}))
+  (is (= (graph/add-edge {:name "X" :nodes {:a {:name "a" :adjacency_map {}} :w {:name "w" :adjacency_map {}}} :edges #{}}
+                                 (graph/string->edge "a|-|foo:5|-|w"))
+         {:name "X" :nodes {:a {:name "a" :adjacency_map {:w #{{:label "foo" :w 5}}}} :w {:name "w" :adjacency_map {:a #{{:label "foo" :w 5}}}}}
+          :edges #{(graph/string->edge "a|-|foo:5|-|w")}})))
 
 ;; Search Alg Tests
 

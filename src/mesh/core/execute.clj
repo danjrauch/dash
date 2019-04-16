@@ -1,6 +1,6 @@
 (in-ns 'mesh.core.repl)
 
-(defn execute-create-graph-query
+(defn create-graphs
   "Create each graph in the query."
   {:added "0.1.0"}
   [raw_graph_query]
@@ -12,7 +12,7 @@
       (persist/write-to-disk graph_file))
     (swap! global_graph_set conj graph_name)))
 
-(defn execute-delete-graph-query
+(defn delete-graphs
   "Delete each graph in the query."
   {:added "0.1.0"}
   [raw_graph_query]
@@ -25,21 +25,21 @@
     (when (> (count @global_graph_set) 0) (persist/append-string graph_names_file "\n"))
     (persist/write-to-disk graph_names_file)))
 
-(defn execute-create-node-query
+(defn create-nodes
   "Create each node in the query."
   {:added "0.1.0"}
   [graph_name raw_node_query]
   (doseq [block (re-seq #"\(\s*[A-Za-z0-9\_\-\.:]*?\s*(?:\{.*?\}){0,1}\s*\)" raw_node_query)]
     (swap! global_graph graph/add-node (graph/string->node (parse-node-to-string block)))))
 
-(defn execute-create-edge-query
+(defn create-edges
   "Create each edge in the query."
   {:added "0.1.0"}
   [graph_name raw_edge_query]
-  (doseq [block (re-seq #"\([A-Za-z0-9\_\-\.]{1,}\)(?:-|<)\[[A-Za-z0-9\_\-\.]{1,}\](?:-|>)\([A-Za-z0-9\_\-\.]{1,}\)" raw_edge_query)]
+  (doseq [block (re-seq (re-pattern edge_string) raw_edge_query)]
     (swap! global_graph graph/add-edge (graph/string->edge (parse-edge-to-string block)))))
 
-(defn execute-show-node-query
+(defn show-nodes
   "Find and return a node in the graph."
   {:added "0.1.0"}
   [raw_node_query]

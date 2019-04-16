@@ -20,15 +20,15 @@
 
 ;; Execute Tests
 
-(deftest execute-create-graph-query-test)
+(deftest create-graphs-test)
 
-(deftest execute-create-node-query-test
+(deftest create-nodes-test
   (with-files [["graph_names" "X\n"] ["X/node"]]
     (def file (persist/provide-file (str repl/data_dir "X/node")))
-    (repl/execute-create-node-query "X" "(a:b)")
-    (repl/execute-create-node-query "X" "(c:d {e:f})")))
+    (repl/create-nodes "X" "(a:b)")
+    (repl/create-nodes "X" "(c:d {e:f})")))
 
-(deftest execute-create-edge-query-test
+(deftest create-edges-test
   (with-files [["graph_names" "X\n"] ["X/edge"]]
     (def file (persist/provide-file (str repl/data_dir "X/edge")))
-    (repl/execute-create-edge-query "X" "(a)-[b]>(c)")))
+    (repl/create-edges "X" "(a)-[b]>(c)")))

@@ -10,6 +10,8 @@
   (:gen-class)
   (:use clojure.java.shell))
 
+;; Enhancement from TARS cli library
+
 (load "regex")
 (load "globals")
 (load "parse")
@@ -199,12 +201,12 @@
         (= input_char ascii_enter)
         (do
           (reset! history_cursor -1)
+          (move-cursor-to-pos (count buffer) cursor_pos)
           (when (not (str/blank? buffer)) (swap! command_history conj buffer))
           (print " ")
           (cond
             ; (nil? buffer) ""
             (str/blank? buffer) (do (println) "")
-            (some #{(str/trim buffer)} '("quit" "exit")) (do (println) (System/exit 0))
             :else (handle-input (str/trim buffer))))
         ;; On-backspace entered.
         (= input_char ascii_backspace)
@@ -239,7 +241,7 @@
   {:added "0.1.0"}
   []
   ; (prints print _G (clojure.string/replace (slurp "resources/branding") #"VERSION" (:mesh-version environ/env)) _B)
-  (prints print (clojure.string/replace (slurp "resources/branding") #"VERSION" (:mesh-version environ/env)))
+  (prints print _G (clojure.string/replace (slurp "resources/branding") #"VERSION" (:mesh-version environ/env)) _G)
   (addShutdownHook (fn [] (turn-char-buffering-off)))
   (turn-char-buffering-on)
   (while true (repl))
@@ -249,5 +251,3 @@
   {:added "0.1.0"}
   [& args]
   (start-repl))
-
-;; enhancement from TARS cli library

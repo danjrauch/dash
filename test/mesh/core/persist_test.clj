@@ -173,11 +173,11 @@
 ;     (persist/write-node "create_edge_test_graph" {:name "g" :descriptor_set #{"h"} :attribute_map {} :adjacency_map {}} tmp_dir)
 ;     (persist/write-node "create_edge_test_graph" {:name "i" :descriptor_set #{"k"} :attribute_map {} :adjacency_map {}} tmp_dir)
 ;     (persist/write-node "create_edge_test_graph" {:name "j" :descriptor_set #{"l"} :attribute_map {} :adjacency_map {}} tmp_dir)
-;     (persist/write-edge "create_edge_test_graph" {:u "a" :label "foo" :v "c"
+;     (persist/write-edge "create_edge_test_graph" {:u "a" :label {:label "foo"} :v "c"
 ;                                                    :direction "--"} tmp_dir)
-;     (persist/write-edge "create_edge_test_graph" {:u "e" :label "bar" :v "g"
+;     (persist/write-edge "create_edge_test_graph" {:u "e" :label {:label "bar"} :v "g"
 ;                                                    :direction "->"} tmp_dir)
-;     (persist/write-edge "create_edge_test_graph" {:u "i" :label "baz" :v "j"
+;     (persist/write-edge "create_edge_test_graph" {:u "i" :label {:label "baz"} :v "j"
 ;                                                    :direction "<-"} tmp_dir)
 ;     (def edge_file (persist/provide-file (str tmp_dir "create_edge_test_graph/edge")))
 ;     (is (= (persist/get-contents edge_file) "a|-|foo|-|c^e|-|bar|>|g^i|<|baz|-|j^"))))
@@ -185,13 +185,13 @@
 (deftest write-graph-test
   (with-tmp-dir
     (persist/create-graph "write_graph_test_graph" tmp_dir)
-    (persist/write-graph {:name "write_graph_test_graph" :nodes {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{"foo"}}}
+    (persist/write-graph {:name "write_graph_test_graph" :nodes {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{{:label "foo"}}}}
                                                                  :h {:name "h" :descriptor_set #{"i"} :attribute_map {:j "k"} :adjacency_map {}}
-                                                                 :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{"bar" "baz"}}}}} tmp_dir)
+                                                                 :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{{:label "bar"} {:label "baz"}}}}}} tmp_dir)
     (def graph_file (persist/provide-file (str tmp_dir "write_graph_test_graph/graph.fress")))
-    (is (= (persist/read-graph "write_graph_test_graph" tmp_dir) {:name "write_graph_test_graph" :nodes {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{"foo"}}}
+    (is (= (persist/read-graph "write_graph_test_graph" tmp_dir) {:name "write_graph_test_graph" :nodes {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{{:label "foo"}}}}
                                                                                                          :h {:name "h" :descriptor_set #{"i"} :attribute_map {:j "k"} :adjacency_map {}}
-                                                                                                         :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{"bar" "baz"}}}}}))))
+                                                                                                         :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{{:label "bar"} {:label "baz"}}}}}}))))
 
 (deftest delete-graph-test
   (with-tmp-dir
@@ -202,21 +202,21 @@
 
 (deftest read-graph-test
   (with-tmp-dir
-    (persist/write-graph {:name "read_graph_test_graph1" :nodes {:a {:name "a" :descriptor_set #{} :attribute_map {} :adjacency_map {:w #{"con"}}}
-                                                                 :w {:name "w" :descriptor_set #{} :attribute_map {} :adjacency_map {:a #{"con"}}}}} tmp_dir)
-    (persist/write-graph {:name "read_graph_test_graph2" :nodes {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{"con"}}}
-                                                                 :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{"con"}}}}} tmp_dir)
-    (persist/write-graph {:name "read_graph_test_graph3" :nodes {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{"baz"}}}
-                                                                 :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{"con"}}}}} tmp_dir)
-    (persist/write-graph {:name "read_graph_test_graph4" :nodes {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{"foo"}}}
+    (persist/write-graph {:name "read_graph_test_graph1" :nodes {:a {:name "a" :descriptor_set #{} :attribute_map {} :adjacency_map {:w #{{:label "con"}}}}
+                                                                 :w {:name "w" :descriptor_set #{} :attribute_map {} :adjacency_map {:a #{{:label "con"}}}}}} tmp_dir)
+    (persist/write-graph {:name "read_graph_test_graph2" :nodes {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{{:label "con"}}}}
+                                                                 :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{{:label "con"}}}}}} tmp_dir)
+    (persist/write-graph {:name "read_graph_test_graph3" :nodes {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{{:label "baz"}}}}
+                                                                 :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{{:label "con"}}}}}} tmp_dir)
+    (persist/write-graph {:name "read_graph_test_graph4" :nodes {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{{:label "foo"}}}}
                                                                  :h {:name "h" :descriptor_set #{"i"} :attribute_map {:j "k"} :adjacency_map {}}
-                                                                 :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{"bar" "baz"}}}}} tmp_dir)
-    (is (= (:nodes (persist/read-graph "read_graph_test_graph1" tmp_dir)) {:a {:name "a" :descriptor_set #{} :attribute_map {} :adjacency_map {:w #{"con"}}}
-                                                                           :w {:name "w" :descriptor_set #{} :attribute_map {} :adjacency_map {:a #{"con"}}}}))
-    (is (= (:nodes (persist/read-graph "read_graph_test_graph2" tmp_dir)) {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{"con"}}}
-                                                                           :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{"con"}}}}))
-    (is (= (:nodes (persist/read-graph "read_graph_test_graph3" tmp_dir)) {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{"baz"}}}
-                                                                           :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{"con"}}}}))
-    (is (= (:nodes (persist/read-graph "read_graph_test_graph4" tmp_dir)) {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{"foo"}}}
+                                                                 :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{{:label "bar"} {:label "baz"}}}}}} tmp_dir)
+    (is (= (:nodes (persist/read-graph "read_graph_test_graph1" tmp_dir)) {:a {:name "a" :descriptor_set #{} :attribute_map {} :adjacency_map {:w #{{:label "con"}}}}
+                                                                           :w {:name "w" :descriptor_set #{} :attribute_map {} :adjacency_map {:a #{{:label "con"}}}}}))
+    (is (= (:nodes (persist/read-graph "read_graph_test_graph2" tmp_dir)) {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{{:label "con"}}}}
+                                                                           :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{{:label "con"}}}}}))
+    (is (= (:nodes (persist/read-graph "read_graph_test_graph3" tmp_dir)) {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{{:label "baz"}}}}
+                                                                           :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{{:label "con"}}}}}))
+    (is (= (:nodes (persist/read-graph "read_graph_test_graph4" tmp_dir)) {:a {:name "a" :descriptor_set #{"b"} :attribute_map {:c "d"} :adjacency_map {:w #{{:label "foo"}}}}
                                                                            :h {:name "h" :descriptor_set #{"i"} :attribute_map {:j "k"} :adjacency_map {}}
-                                                                           :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{"bar" "baz"}}}}))))
+                                                                           :w {:name "w" :descriptor_set #{"x"} :attribute_map {:y "z"} :adjacency_map {:a #{{:label "bar"} {:label "baz"}}}}}))))

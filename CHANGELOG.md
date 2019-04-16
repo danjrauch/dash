@@ -2,9 +2,15 @@
 
 ## [Unreleased]
 
+## 0.1.0 - 2019-04-15
+### Graph Map Structure
+- Add edge_set to graph map
+- Add edge value map with label and weight keys
 ## 0.1.0 - 2019-04-07
+### Serialization
 - Graph persistence done with Fressian serialization
 ## 0.1.0 - 2019-04-06
+### Namespace change
 - Trifercation into core.graph, core.persist, core.repl namespaces
 ## 0.1.0 - 2019-03-01
 ### Graph Writing/Reading

@@ -21,7 +21,7 @@
   (provide-file (str data_dir graph_name "/graph.fress"))
   (fress/write (str data_dir graph_name "/graph.fress"))
   ; (provide-file (str data_dir graph_name "/stats"))
-  {:name graph_name :nodes {}})
+  {:name graph_name :nodes {} :edges #{}})
 
 (defn delete-graph
   "Delete a graph on disk."
@@ -36,7 +36,7 @@
   (def graph_file (provide-file (str data_dir graph_name "/graph.fress")))
   (if (> (count (get-contents graph_file)) 0)
     (fress/read (get-contents graph_file) :handlers read-handler-lookup)
-    {:name graph_name :nodes {}}))
+    {:name graph_name :nodes {} :edges #{}}))
 
 (defn write-graph
   "Writes a graph to a file."
