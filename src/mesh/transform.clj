@@ -1,4 +1,4 @@
-(in-ns 'mesh.core.graph)
+(in-ns 'mesh.graph)
 
 (defn standard-datetime
   "Get the current datetime in UTC"

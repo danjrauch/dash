@@ -1,12 +1,12 @@
-(ns mesh.core.repl
+(ns mesh.repl
   (:require [clojure.string :as str]
             [environ.core :as environ]
             [clj-time.core :as t]
             [clj-time.local :as l]
             [clojure.pprint :as pprint]
             [spinner.core :as spin]
-            [mesh.core.graph :as graph]
-            [mesh.core.persist :as persist])
+            [mesh.graph :as graph]
+            [mesh.persist :as persist])
   (:gen-class)
   (:use clojure.java.shell))
 
@@ -241,7 +241,7 @@
   {:added "0.1.0"}
   []
   ; (prints print _G (clojure.string/replace (slurp "resources/branding") #"VERSION" (:mesh-version environ/env)) _B)
-  (prints print _G (clojure.string/replace (slurp "resources/branding") #"VERSION" (:mesh-version environ/env)) _G)
+  (prints print (clojure.string/replace (slurp "resources/branding") #"VERSION" (:mesh-version environ/env)))
   (addShutdownHook (fn [] (turn-char-buffering-off)))
   (turn-char-buffering-on)
   (while true (repl))

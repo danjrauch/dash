@@ -1,4 +1,4 @@
-(in-ns 'mesh.core.persist)
+(in-ns 'mesh.persist)
 
 (defn connect-log
   "I/O logs for file operations."

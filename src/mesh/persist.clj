@@ -1,4 +1,4 @@
-(ns mesh.core.persist
+(ns mesh.persist
   (:require [clojure.string :as str]
             [clojure.core.async :refer [>! <! >!! <!! go chan buffer close! thread alts! alts!! timeout]]
             [clojure.data.fressian :as fress]
@@ -6,7 +6,7 @@
             [environ.core :as environ]
             [clj-time.core :as t]
             [clj-time.local :as l]
-            [mesh.core.graph :as graph])
+            [mesh.graph :as graph])
   (:import [org.fressian Writer Reader StreamingWriter]
            [org.fressian.handlers ReadHandler WriteHandler]
            [java.nio ByteBuffer]))

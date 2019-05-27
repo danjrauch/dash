@@ -1,6 +1,6 @@
 (ns test.util
-  (:require [mesh.core.persist :as persist]
-            [mesh.core.repl :as repl]))
+  (:require [mesh.persist :as persist]
+            [mesh.repl :as repl]))
 
 (def tmp_dir "test/test_data/")
 

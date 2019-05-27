@@ -1,4 +1,4 @@
-(ns mesh.core.graph
+(ns mesh.graph
   (:require [clojure.string :as str]
             [clj-time.core :as t]
             [clj-time.local :as l]))

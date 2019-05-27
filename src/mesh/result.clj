@@ -1,4 +1,4 @@
-(in-ns 'mesh.core.repl)
+(in-ns 'mesh.repl)
 
 (defn handle-input
   ""
