@@ -1,9 +1,9 @@
-(ns mesh.core.repl-test
+(ns mesh.repl-test
   (:require [clojure.test :refer :all]
             [test.util :refer :all]
-            [mesh.core.graph :as graph]
-            [mesh.core.persist :as persist]
-            [mesh.core.repl :as repl]))
+            [mesh.graph :as graph]
+            [mesh.persist :as persist]
+            [mesh.repl :as repl]))
 
 ;;; Read/Write Tests
 

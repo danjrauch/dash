@@ -1,8 +1,8 @@
-(ns mesh.core.persist-test
+(ns mesh.persist-test
   (:require [clojure.test :refer :all]
             [test.util :refer :all]
-            [mesh.core.graph :as graph]
-            [mesh.core.persist :as persist]))
+            [mesh.graph :as graph]
+            [mesh.persist :as persist]))
 
 ;; Data Transform Tests
 

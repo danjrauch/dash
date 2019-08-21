@@ -1,7 +1,7 @@
-(ns mesh.core.graph-test
+(ns mesh.graph-test
   (:require [clojure.test :refer :all]
             [test.util :refer :all]
-            [mesh.core.graph :as graph]))
+            [mesh.graph :as graph]))
 
 ;; Creation Tests
 

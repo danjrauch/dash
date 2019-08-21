@@ -20,7 +20,7 @@
   {:name s/Str
    :descriptors [s/Str]
    :attributes {s/Keyword s/Str}
-   :adjacency_map {s/Keyword [ {:w s/Num :label s/Str} ]}
+   :adjacency_map {s/Keyword [ {(s/optional-key :w) s/Num (s/optional-key :label) s/Str} ]}
    }
   )
 
@@ -46,7 +46,7 @@
              jnode {:name (:name n)
                     :descriptors (vec (:descriptor_set n))
                     :attributes (:attribute_map n)
-                    :adjacency_map (into {} (map (fn [[key val]] [key (vec val)]) (:adjacency_map node)))
+                    :adjacency_map (into {} (map (fn [[key val]] [key (vec val)]) (:adjacency_map n)))
                     }]
          (println jnode)
          (ok {:result jnode})))
